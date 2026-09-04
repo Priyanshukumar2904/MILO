@@ -12,3 +12,4 @@ captures/
 
 __pycache__/
 *.pyc
+dist/*.apk

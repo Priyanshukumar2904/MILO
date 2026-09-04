@@ -92,7 +92,11 @@ fun MiloMainApp(viewModel: MiloViewModel) {
                     records = state.records,
                     achievements = state.achievements,
                     onCheckUpdate = { showUpdateDialog = true },
-                    onResetData = { viewModel.resetDemoData() }
+                    onResetData = { viewModel.resetDemoData() },
+                    onSetProfileMode = { viewModel.setProfileMode(it) },
+                    onTriggerAchievement = { viewModel.triggerAchievement() },
+                    onTriggerRecord = { viewModel.triggerPersonalRecord() },
+                    onTriggerUpdateNotice = { showUpdateDialog = true }
                 )
             }
 

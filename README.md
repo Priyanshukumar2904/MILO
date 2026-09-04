@@ -1,184 +1,238 @@
-# MILO — Personal Productivity OS
-> *“Be better than yesterday.”*
+<div align="center">
 
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-purple.svg)](https://kotlinlang.org)
-[![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-2024.10.00-brightgreen.svg)](https://developer.android.com/jetpack/compose)
-[![Target SDK](https://img.shields.io/badge/Target%20SDK-35-blue.svg)](https://developer.android.com)
-[![Room SQLite](https://img.shields.io/badge/Room%20DB-Offline--First-orange.svg)](https://developer.android.com/training/data-storage/room)
-[![License](https://img.shields.io/badge/License-MIT-black.svg)](LICENSE)
+# MILO 🐈
 
-MILO is an offline-first, data-driven personal productivity, routine, habit, and behavioral analytics operating system built natively for **Android** with **Kotlin** and **Jetpack Compose**.
+**Your personal productivity companion.**
 
-Instead of treating productivity as a punitive checklist, MILO operates on a supportive behavioral philosophy: **incremental, sustainable self-improvement** without guilt, shame, or cognitive burnout.
+*“Track your day. Understand your habits. See your progress. Become better than yesterday.”*
 
----
+[![GitHub Release](https://img.shields.io/github/v/release/Priyanshukumar2904/MILO?color=white&label=Release&style=flat-square)](https://github.com/Priyanshukumar2904/MILO/releases/latest)
+[![Android Target](https://img.shields.io/badge/Android-Target%20SDK%2035-242428?style=flat-square&logo=android&logoColor=white)](https://developer.android.com)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?style=flat-square&logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?style=flat-square&logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
+[![Offline-First](https://img.shields.io/badge/Persistence-Room%20SQLite%20(100%25%20Offline)-orange?style=flat-square)](https://developer.android.com/training/data-storage/room)
+[![License](https://img.shields.io/badge/License-MIT-gray?style=flat-square)](LICENSE)
 
-## Video Demonstration
-The repository includes a comprehensive 1080p demonstration video showcasing the user experience, Milo companion emotions, scoring calculations, habit matrices, and reports:
-- **Demonstration Video**: [`milo_demo.mp4`](./milo_demo.mp4)
+<br/>
 
----
+<a href="https://github.com/Priyanshukumar2904/MILO/releases/latest/download/Milo.apk">
+  <img src="https://img.shields.io/badge/Download_Android_APK-Milo.apk-white?style=for-the-badge&logo=android&logoColor=black" alt="Download APK" />
+</a>
+<a href="#see-milo-in-action">
+  <img src="https://img.shields.io/badge/View_Demo-Interactive_GIF-18181B?style=for-the-badge&logo=playstation&logoColor=white" alt="View Demo" />
+</a>
+<a href="https://github.com/Priyanshukumar2904/MILO/releases/latest">
+  <img src="https://img.shields.io/badge/Latest_Release-v1.4.0-27272A?style=for-the-badge" alt="Latest Release" />
+</a>
 
-## Core Systems & Architecture
+<br/><br/>
 
-```
-                                  ┌───────────────────────────────┐
-                                  │      Milo Mascot Engine       │
-                                  │  8 Canvas States & Coaching   │
-                                  └───────────────▲───────────────┘
-                                                  │
-┌───────────────────────────────┐  ┌──────────────┴───────────────┐  ┌───────────────────────────────┐
-│     Productivity Scoring      │  │        Milo ViewModel        │  │       Analytics Engine        │
-│  Modular 0-100 & Delta Calc   │◄─┤  StateFlow & Unidirectional  ├─►│  Daily, Weekly & Life Report  │
-└───────────────────────────────┘  └──────────────┬───────────────┘  └───────────────────────────────┘
-                                                  │
-                                   ┌──────────────▼───────────────┐
-                                   │        Milo Repository       │
-                                   │  Room SQLite (Offline-First) │
-                                   └──────────────┬───────────────┘
-                                                  │
-                                   ┌──────────────▼───────────────┐
-                                   │      WorkManager Queue       │
-                                   │  Battery & Network Optimized │
-                                   └──────────────────────────────┘
-```
+[![MILO Hero Banner](docs/screenshots/hero-banner.png)](https://github.com/Priyanshukumar2904/MILO/raw/main/milo_demo.mp4)
 
-### 1. Milo Companion Mascot
-A supportive, canvas-rendered graphical companion with 8 reactive emotional states:
-- `Calm`: Baseline serene state with gentle breathing.
-- `Curious`: Head-tilted with one cocked ear and inquisitive whiskers.
-- `Happy`: Expressive smiling arcs with reactive blinking.
-- `Proud`: Confident posture celebrating high consistency.
-- `Encouraging`: Supportive presence during difficult days.
-- `Sleepy`: Relaxed evening posture signaling wind-down.
-- `Celebrating`: Raised paws with festive confetti particles.
-- `Welcoming`: Warm waving greeting upon launch.
-
-### 2. Today Dashboard & Scoring Engine (0-100)
-A holistic daily scoring engine with transparent weighted inputs:
-- **Task Completion (25%)**: Proportional progress across scheduled activities.
-- **Time Management & Priority (20%)**: Variance tracking and priority weighting.
-- **Focus Stamina (20%)**: Uninterrupted deep work duration.
-- **Habit Adherence (20%)**: Daily habit checkmark completion.
-- **Routine Consistency (15%)**: Morning anchor timing and goal fulfillment.
-- **Improvement Delta**: Clear comparative indicator (e.g. `+9% vs yesterday`).
-
-### 3. Multi-Scale Schedule Engine
-- **Day View**: Vertical timeline with active time blocks, completed nodes, and live progress indicators.
-- **Week View**: Visual heatmap matrix showing productive distribution across categories.
-- **Month View**: Macro adherence calendar with high-contrast indicator dots.
-
-### 4. Habit Consistency Matrix
-- **7-Day Visual Matrix**: Minimalist rounded squares showing recent consistency.
-- **Resilient Streaks**: Designed to reward consistency velocity rather than inducing panic when a streak is missed.
-- **Behavioral Insights**: Contextual metrics citing exact sample sizes (e.g. *“Based on the last 4 weeks, your consistency velocity is up +15.8%.”*).
-
-### 5. Reflective Reports
-- **Daily Productivity Report**: Breakdown of productive, study, work, and exercise minutes with personal bests and growth opportunities.
-- **Weekly Report**: Planned vs actual category distributions and habit consistency matrices.
-- **Signature Monthly Life Report**: Deep retrospective anchored by the core sentiment:
-  > *“You showed up. You completed 86% of your planned activities this month, exercised 14 times, and logged 37 deep study hours. You're not the same person who started this month.”*
-
-### 6. Zen Ambient Focus Mode
-- Fullscreen distraction-free dark canvas.
-- Concentric breathing focus rings.
-- Battery-aware session tracking powered by Android `WorkManager`.
-
-### 7. Self-Hosted Verified Distribution
-- In-app update checker querying `update.json`.
-- Client-side **SHA-256 cryptographic checksum verification** ensuring APK integrity prior to `PackageInstaller` handoff.
-- Automated release script (`scripts/release.sh`) and GitHub Actions workflow (`.github/workflows/release.yml`).
+</div>
 
 ---
 
-## Directory Structure
+## ✦ Quick Links
+- 📥 **Direct APK Download**: [`Milo.apk`](https://github.com/Priyanshukumar2904/MILO/releases/latest/download/Milo.apk)
+- 📦 **Latest GitHub Release**: [MILO Releases](https://github.com/Priyanshukumar2904/MILO/releases/latest)
+- 🎬 **1080p Video Demonstration**: [`milo_demo.mp4`](./milo_demo.mp4)
+- 🔄 **Self-Hosted Update Manifest**: [`update.json`](./update.json)
+- 🛠️ **Developer Single-Command CLI**: [`./milo`](#development-command-center)
+
+---
+
+## ✦ About MILO
+Most productivity applications are built like punitive surveillance checklists—they guilt-trip you with broken streaks, induce cognitive burnout, and demand perfection. 
+
+**MILO is designed differently.**
+
+Built natively for Android with **Kotlin** and **Jetpack Compose**, MILO acts as your personal operating system for gradual, sustainable self-improvement. It celebrates showing up, acknowledges rest as recovery, and gives you deep behavioral clarity across your days, weeks, and months.
+
+### Core Pillars:
+1. **0–100 Modular Scoring**: Transparent composite score weighted across task completion (25%), time management (20%), deep focus stamina (20%), habit discipline (20%), and routine consistency (15%).
+2. **Continuous Improvement Delta**: Real-time comparison against yesterday’s baseline (`▲ +9% Better`).
+3. **Milo the Companion**: An expressive, procedural canvas mascot with 8 emotional states who cheers your wins and supports you on slower days without guilt.
+4. **Resilient Habit Matrices**: Visual 7-day completion matrices and 4-week velocity curves that never shame missed days.
+5. **The Monthly Life Report**: A milestone retrospective anchored by the signature philosophy: *“You showed up.”*
+6. **100% Offline Data Sovereignty**: Backed by encrypted local Room SQLite with zero mandatory external servers.
+
+---
+
+## # See MILO in Action
+
+The user flow is natural, fluid, and continuous:
 
 ```
-milo-android/
+   ┌──────────────┐          ┌──────────────┐          ┌───────────────────┐
+   │    Today     │  ──────► │   Schedule   │  ──────► │ Complete Activity │
+   │  Dashboard   │          │ Time-Block   │          │   & Start Timer   │
+   └──────────────┘          └──────────────┘          └─────────┬─────────┘
+                                                                 │
+   ┌──────────────┐          ┌──────────────┐          ┌─────────▼─────────┐
+   │ Monthly Life │  ◄────── │    Weekly    │  ◄────── │ Productivity Delta│
+   │    Report    │          │ Performance  │          │   Increases (+9%) │
+   └──────────────┘          └──────────────┘          └───────────────────┘
+```
+
+<div align="center">
+  <img src="docs/demo/milo-demo.gif" alt="MILO Animated Walkthrough" width="280" />
+  <p><em>Lightweight animated sequence: Today OS → Time-Blocking → Habit Matrix → Insights → Monthly Life Report</em></p>
+</div>
+
+---
+
+## ✦ Screenshots
+
+<div align="center">
+<table>
+  <tr>
+    <td align="center"><b>Today (Dark Mode)</b></td>
+    <td align="center"><b>Today (Light Mode)</b></td>
+    <td align="center"><b>Schedule (Time-Blocking)</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/today-dark.png" width="240" alt="Today Screen Dark" /></td>
+    <td><img src="docs/screenshots/today-light.png" width="240" alt="Today Screen Light" /></td>
+    <td><img src="docs/screenshots/schedule.png" width="240" alt="Schedule Screen" /></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Habit Matrix</b></td>
+    <td align="center"><b>Behavioral Insights</b></td>
+    <td align="center"><b>Weekly Report</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/habits.png" width="240" alt="Habits Matrix" /></td>
+    <td><img src="docs/screenshots/insights.png" width="240" alt="Behavioral Insights" /></td>
+    <td><img src="docs/screenshots/weekly-report.png" width="240" alt="Weekly Report" /></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Monthly Life Report</b></td>
+    <td align="center"><b>Achievements</b></td>
+    <td align="center"><b>Milo Companion States</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/life-report.png" width="240" alt="Monthly Life Report" /></td>
+    <td><img src="docs/screenshots/achievements.png" width="240" alt="Achievements Screen" /></td>
+    <td><img src="docs/screenshots/milo-mascot.png" width="240" alt="Milo Companion Mascot" /></td>
+  </tr>
+</table>
+</div>
+
+---
+
+## ✦ Download MILO for Android
+
+### Method 1: Direct APK Download
+1. Download the latest release asset: [**Download `Milo.apk`**](https://github.com/Priyanshukumar2904/MILO/releases/latest/download/Milo.apk)
+2. On your Android phone, tap the downloaded APK.
+3. If prompted by Android (*"For your security, your phone is not allowed to install unknown apps from this source"*), tap **Settings** and toggle **Allow from this source**.
+4. Tap **Install**, then open **MILO**.
+
+### Method 2: One-Command USB Installation (Developers)
+Connect your Android phone with **USB Debugging** enabled and run:
+```bash
+./milo install
+```
+MILO will automatically build, install, and launch on your phone.
+
+---
+
+## ✦ Development Command Center
+
+You never need to memorize complex Gradle commands. The root executable `./milo` manages the entire development lifecycle:
+
+```bash
+./milo <command>
+```
+
+| Command | Action |
+| :--- | :--- |
+| `./milo` or `./milo run` | Launch MILO on Android Emulator / laptop preview |
+| `./milo install` | Detect USB phone, install debug APK, and launch app |
+| `./milo apk` | Build release APK (`dist/Milo.apk`) with SHA-256 hash |
+| `./milo apk debug` | Build fast debug APK for rapid iteration |
+| `./milo release` | Run tests, build APK, update manifest, and publish to GitHub Releases |
+| `./milo screenshots` | Regenerate all 10 high-resolution screenshots & demo GIF |
+| `./milo test` | Run the full unit test suite (Scoring, Analytics, Verifier) |
+| `./milo clean` | Clean all build caches and generated artifacts |
+| `./milo update` | Validate `update.json` manifest syntax and remote assets |
+| `./milo help` | Print beginner-friendly command guide |
+
+---
+
+## ✦ Running on Laptop (Android Emulator)
+
+### Prerequisites
+1. **Java 21**: Temurin / OpenJDK 21
+2. **Android Studio**: Download from [developer.android.com/studio](https://developer.android.com/studio)
+
+### Setup Steps
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/Priyanshukumar2904/MILO.git
+   cd MILO
+   ```
+2. **Create an Android Virtual Device (AVD)**:
+   - In Android Studio, open **Virtual Device Manager**.
+   - Create a device profile: **Pixel 8**, System Image **API 35** (VanillaIceCream).
+3. **Launch MILO**:
+   ```bash
+   ./milo run
+   ```
+   The script detects the emulator, builds the debug package, and starts the application immediately.
+
+---
+
+## ✦ Developer Demo Controls
+
+MILO includes an internal developer menu located under **Profile → DEVELOPER DEMO CONTROLS**:
+- **High Flow (92)**: Instantly simulates a peak performance day with high score and proud mascot reactions.
+- **Rest Day (42)**: Simulates a slower day to verify gentle, supportive feedback without streak-shaming.
+- **+ Achievement**: Triggers dynamic achievement unlock modals.
+- **+ Record**: Adds personal best records.
+- **Reset 30-Day Historical Data**: Resets local Room SQLite to pre-populated realistic data from August 6 to September 4, 2026.
+
+---
+
+## ✦ Verified Self-Hosted Update Architecture
+
+MILO operates autonomously without dependency on Google Play:
+1. **Check for Updates**: App queries the remote HTTPS manifest ([`update.json`](./update.json)).
+2. **Cryptographic Verification**: The downloaded APK is validated client-side with [`UpdateVerifier.kt`](app/src/main/java/com/milo/app/domain/engine/UpdateVerifier.kt) using SHA-256 before handing off to Android’s `PackageInstaller`.
+3. **Data Preservation**: Room migrations ensure user history and settings survive updates seamlessly.
+
+---
+
+## ✦ Architecture & Project Map
+
+```
+MILO/
+├── milo                     # Developer CLI single-command orchestrator
 ├── app/
-│   ├── build.gradle.kts
-│   ├── proguard-rules.pro
-│   └── src/
-│       ├── main/
-│       │   ├── AndroidManifest.xml
-│       │   ├── java/com/milo/app/
-│       │   │   ├── MiloApplication.kt
-│       │   │   ├── MainActivity.kt
-│       │   │   ├── domain/
-│       │   │   │   ├── models/ (Activity, Habit, FocusSession, Reports, MiloEmotion, ...)
-│       │   │   │   └── engine/ (ProductivityScoringEngine, AnalyticsEngine, MotivationEngine, UpdateVerifier)
-│       │   │   ├── data/
-│       │   │   │   ├── local/ (MiloDatabase, Daos, Entities, Converters)
-│       │   │   │   └── repository/ (MiloRepository with 30-day realistic seed data)
-│       │   │   ├── ui/
-│       │   │   │   ├── theme/ (Color, Type, Shape, Theme - OLED minimal grayscale)
-│       │   │   │   ├── mascot/ (MiloCompanion canvas rendering, MiloSpeechBubble)
-│       │   │   │   ├── components/ (MiloScoreRing, MetricCard, TimelineNode, MiloBottomNav)
-│       │   │   │   ├── screens/ (TodayScreen, ScheduleScreen, HabitsScreen, InsightsScreen, ProfileScreen)
-│       │   │   │   ├── dialogs/ (DailyReportDialog, WeeklyReportScreen, MonthlyLifeReportScreen, ZenFocusScreen, UpdateExperienceDialog)
-│       │   │   │   └── viewmodel/ (MiloViewModel)
-│       │   │   └── service/ (AppUpdateInstaller, BatteryAwareSyncWorker)
-│       │   └── res/ (strings, themes, file_paths, backup_rules)
-│       └── test/
-│           └── java/com/milo/app/engine/ (Unit tests for Scoring, Analytics, UpdateVerifier)
-├── gradle/
-│   ├── wrapper/
-│   └── libs.versions.toml
+│   ├── src/main/
+│   │   ├── java/com/milo/app/
+│   │   │   ├── MainActivity.kt          # Root Activity & navigation host
+│   │   │   ├── domain/engine/           # Scoring, Analytics, Insights, Verifier
+│   │   │   ├── data/local/              # Room DB, DAOs, Entities, Converters
+│   │   │   ├── ui/mascot/               # MiloCompanion canvas rendering
+│   │   │   ├── ui/screens/              # Today, Schedule, Habits, Insights, Profile
+│   │   │   └── ui/dialogs/              # Daily, Weekly, Monthly Life Reports, Zen Focus
+│   │   └── res/                         # Strings, themes, file provider paths
+│   └── src/test/                        # Unit tests for scoring & analytics
+├── dist/                                # Release APK output directory
+├── docs/
+│   ├── screenshots/                     # 10 UI screenshots in dark & light
+│   └── demo/                            # milo-demo.gif walkthrough
 ├── scripts/
-│   ├── release.sh (Automated build, SHA-256 hashing, and GitHub release pipeline)
-│   └── generate_demo_video.py (1080p full-length video demonstration generator)
-├── update.json (Self-hosted distribution update manifest)
-├── milo_demo.mp4 (Full-length demonstration video)
+│   ├── release.sh                       # Automated GitHub release script
+│   └── generate_screenshots.py          # Screenshot & GIF renderer
+├── update.json                          # Distribution manifest
+├── milo_demo.mp4                        # Full 1080p demonstration video
 └── build.gradle.kts
 ```
 
 ---
 
-## Building & Running
-
-### Requirements
-- **JDK 21** (Temurin / OpenJDK)
-- **Android SDK 35**
-- **Gradle 8.10+**
-
-### Local Build
-```bash
-# Set Java 21 environment
-export JAVA_HOME=~/.jdk
-export PATH=$JAVA_HOME/bin:$PATH
-
-# Run unit tests
-./gradlew testReleaseUnitTest
-
-# Build signed release APK
-./gradlew assembleRelease
-```
-
-### Publishing a Release
-Run the automated release script:
-```bash
-./scripts/release.sh
-```
-This script will:
-1. Compile the release APK with ProGuard optimization.
-2. Calculate the SHA-256 checksum.
-3. Update `update.json` with the new version, hash, and release notes.
-4. Create a tagged GitHub Release via the GitHub CLI (`gh`).
-
----
-
-## Design System & Aesthetics
-MILO utilizes a strict **OLED Black + White + Grayscale** palette with subtle positive accents (Zinc, Obsidian, White, Muted Green):
-- **Background**: `#09090B` (Deep Obsidian Black)
-- **Cards**: `#18181B` (Zinc-900 with `#27272A` borders)
-- **Primary Text**: `#FAFAFA` (Zinc-50)
-- **Secondary Text**: `#A1A1AA` (Zinc-400)
-- **Accents**: `#34C759` (Positive Improvement), `#FFB340` (Curious / Attention)
-
----
-
-## Philosophy & Coaching Guardrails
-- **No Shame**: If a user completes 1 out of 5 tasks, MILO celebrates the 1 task completed.
-- **Resilient Habits**: A missed day is treated as recovery, not a reset to zero.
-- **Long-Term Lens**: Focus on 4-week velocity curves rather than daily perfection.
-- **You Showed Up**: Every day you engage is a victory.
+## ✦ License
+This project is open source and available under the [MIT License](LICENSE).

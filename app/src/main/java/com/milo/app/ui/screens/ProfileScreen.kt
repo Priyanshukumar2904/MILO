@@ -23,7 +23,11 @@ fun ProfileScreen(
     records: List<PersonalRecord>,
     achievements: List<Achievement>,
     onCheckUpdate: () -> Unit,
-    onResetData: () -> Unit
+    onResetData: () -> Unit,
+    onSetProfileMode: (Boolean) -> Unit = {},
+    onTriggerAchievement: () -> Unit = {},
+    onTriggerRecord: () -> Unit = {},
+    onTriggerUpdateNotice: () -> Unit = {}
 ) {
     LazyColumn(
         modifier = Modifier
@@ -115,6 +119,72 @@ fun ProfileScreen(
             }
         }
 
+        // Developer Demo Controls
+        item {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MiloCardDark, RoundedCornerShape(24.dp))
+                    .padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(text = "DEVELOPER DEMO CONTROLS", style = MaterialTheme.typography.labelSmall, color = MiloZinc500)
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = { onSetProfileMode(true) },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = MiloZinc800, contentColor = MiloWhite),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(text = "High Flow (92)", style = MaterialTheme.typography.labelSmall)
+                    }
+                    Button(
+                        onClick = { onSetProfileMode(false) },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = MiloZinc800, contentColor = MiloWhite),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(text = "Rest Day (42)", style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = onTriggerAchievement,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MiloZinc300),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(text = "+ Achievement", style = MaterialTheme.typography.labelSmall)
+                    }
+                    OutlinedButton(
+                        onClick = onTriggerRecord,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MiloZinc300),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(text = "+ Record", style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+
+                OutlinedButton(
+                    onClick = onResetData,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MiloZinc400),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(text = "Reset 30-Day Historical Data", style = MaterialTheme.typography.labelSmall)
+                }
+            }
+        }
+
         // Update Checking & System
         item {
             Column(
@@ -133,15 +203,6 @@ fun ProfileScreen(
                     shape = RoundedCornerShape(14.dp)
                 ) {
                     Text(text = "Check for Updates (v1.4.0)", fontWeight = FontWeight.Bold)
-                }
-
-                OutlinedButton(
-                    onClick = onResetData,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MiloZinc400),
-                    shape = RoundedCornerShape(14.dp)
-                ) {
-                    Text(text = "Reload 30-Day Historical Data")
                 }
             }
         }

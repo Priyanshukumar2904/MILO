@@ -151,6 +151,61 @@ class MiloViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // Developer-Only Testing Controls
+    fun setProfileMode(highProductivity: Boolean) {
+        viewModelScope.launch {
+            val targetScore = if (highProductivity) 92 else 42
+            val targetDelta = if (highProductivity) 14 else -8
+            val targetEmotion = if (highProductivity) MiloEmotion.Proud else MiloEmotion.Encouraging
+            val msg = if (highProductivity) 
+                "Outstanding flow state! You've crushed every deep work block." 
+            else 
+                "A slower day does not erase your progress. Let's reset tomorrow."
+
+            _uiState.update { current ->
+                current.copy(
+                    score = current.score.copy(overall = targetScore, deltaYesterday = targetDelta),
+                    feedback = current.feedback.copy(
+                        headline = if (highProductivity) "+14% Above Average" else "Gentle Rest Day",
+                        encouragement = msg,
+                        mascotEmotion = targetEmotion,
+                        scoreDelta = if (targetDelta > 0) "+$targetDelta% Better" else "$targetDelta% Delta"
+                    )
+                )
+            }
+        }
+    }
+
+    fun triggerAchievement(title: String = "Flow State Master") {
+        viewModelScope.launch {
+            val newAch = Achievement(
+                id = "dev_ach_${System.currentTimeMillis()}",
+                title = title,
+                description = "Triggered via Developer Menu for UI inspection",
+                unlockedAtEpochMs = System.currentTimeMillis()
+            )
+            val updated = _uiState.value.achievements + newAch
+            _uiState.update { it.copy(achievements = updated) }
+        }
+    }
+
+    fun triggerPersonalRecord(title: String = "Longest Deep Work Block", value: String = "210 minutes") {
+        viewModelScope.launch {
+            val newRec = PersonalRecord(
+                id = "dev_rec_${System.currentTimeMillis()}",
+                title = title,
+                valueDisplay = value,
+                dateAchieved = "Today"
+            )
+            val updated = _uiState.value.records + newRec
+            _uiState.update { it.copy(records = updated) }
+        }
+    }
+
+    fun triggerUpdateNotification() {
+        _uiState.update { it.copy(updateState = UpdateState.READY_TO_INSTALL) }
+    }
+
     // Self-Hosted In-App Update Flow (Section 51-56)
     fun startUpdateDownload() {
         viewModelScope.launch {
@@ -180,7 +235,6 @@ class MiloViewModel(application: Application) : AndroidViewModel(application) {
     fun installUpdate() {
         viewModelScope.launch {
             _uiState.update { it.copy(updateState = UpdateState.ANDROID_INSTALLER) }
-            // In a production device with downloaded file, triggers updateInstaller.installApk(file, ...)
         }
     }
 

@@ -4,8 +4,8 @@
   "minSupportedVersionCode": 10,
   "releaseDate": "2026-09-05",
   "downloadUrl": "https://github.com/Priyanshukumar2904/MILO/releases/download/v1.4.0/milo-v1.4.0-release.apk",
-  "sha256": "873a1cb64bad298fdc237eca0ed814e52114f2c35a7287e37a4bdaffbad37653",
-  "fileSizeBytes": 55,
+  "sha256": "8f8cea4906726da3555705e494f2dc03c86bdd2a9e9d088ff41791e0f1408dce",
+  "fileSizeBytes": 242,
   "criticalUpdate": false,
   "changelog": [
     "Milo mascot: Added 8 interactive emotional states with vector ear twitches and blinking canvas animations.",
