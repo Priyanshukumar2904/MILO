@@ -1,0 +1,19 @@
+{
+  "versionCode": 10400,
+  "versionName": "1.4.0",
+  "minSupportedVersionCode": 10,
+  "releaseDate": "2026-09-05",
+  "downloadUrl": "https://github.com/Priyanshukumar2904/MILO/releases/download/v1.4.0/milo-v1.4.0-release.apk",
+  "sha256": "873a1cb64bad298fdc237eca0ed814e52114f2c35a7287e37a4bdaffbad37653",
+  "fileSizeBytes": 55,
+  "criticalUpdate": false,
+  "changelog": [
+    "Milo mascot: Added 8 interactive emotional states with vector ear twitches and blinking canvas animations.",
+    "Personal Productivity Score (0-100) with real-time delta vs previous day and 5-factor breakdown.",
+    "Schedule engine: Integrated Day, Week, and Month time-blocking with fluid gesture navigation.",
+    "Habit Consistency Matrix: 7-day visual adherence tracking with streak velocity metrics.",
+    "Monthly Life Report: Generates supportive summary narrative celebrating showing up.",
+    "Live Focus Timer: Zen ambient mode with session tracking and battery-efficient WorkManager sync.",
+    "Self-hosted distribution: Embedded SHA-256 APK checksum validation before package installation."
+  ]
+}
