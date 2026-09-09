@@ -59,6 +59,14 @@ class MiloViewModel(application: Application) : AndroidViewModel(application) {
         observeData()
     }
 
+    private data class CoreDataBundle(
+        val activities: List<Activity>,
+        val habits: List<Habit>,
+        val habitCompletions: List<HabitCompletion>,
+        val goals: List<DailyGoal>,
+        val focusSessions: List<FocusSession>
+    )
+
     private fun observeData() {
         viewModelScope.launch {
             combine(
@@ -66,9 +74,16 @@ class MiloViewModel(application: Application) : AndroidViewModel(application) {
                 repository.getHabits(),
                 repository.getHabitCompletions(),
                 repository.getGoals(),
-                repository.getFocusSessions(),
-                repository.getReflections()
-            ) { acts, hbs, comps, gls, fcs, refs ->
+                repository.getFocusSessions()
+            ) { acts, hbs, comps, gls, fcs ->
+                CoreDataBundle(acts, hbs, comps, gls, fcs)
+            }.combine(repository.getReflections()) { data, refs ->
+                val acts = data.activities
+                val hbs = data.habits
+                val comps = data.habitCompletions
+                val gls = data.goals
+                val fcs = data.focusSessions
+
                 val todayActs = acts.filter { it.date == today }
                 val score = scoringEngine.calculateDailyScore(today, acts, hbs, comps, gls, fcs)
                 val completedCount = todayActs.count { it.status == ActivityStatus.Completed }
@@ -167,9 +182,10 @@ class MiloViewModel(application: Application) : AndroidViewModel(application) {
                     score = current.score.copy(overall = targetScore, deltaYesterday = targetDelta),
                     feedback = current.feedback.copy(
                         headline = if (highProductivity) "+14% Above Average" else "Gentle Rest Day",
-                        encouragement = msg,
-                        mascotEmotion = targetEmotion,
-                        scoreDelta = if (targetDelta > 0) "+$targetDelta% Better" else "$targetDelta% Delta"
+                        supportingText = msg,
+                        catEmotion = targetEmotion,
+                        badgeLabel = if (targetDelta > 0) "+$targetDelta% Better" else "$targetDelta% Delta",
+                        isProgressPositive = highProductivity
                     )
                 )
             }
@@ -182,7 +198,11 @@ class MiloViewModel(application: Application) : AndroidViewModel(application) {
                 id = "dev_ach_${System.currentTimeMillis()}",
                 title = title,
                 description = "Triggered via Developer Menu for UI inspection",
-                unlockedAtEpochMs = System.currentTimeMillis()
+                category = AchievementCategory.Focus,
+                isUnlocked = true,
+                unlockedDate = "Today",
+                progress = 1,
+                maxProgress = 1
             )
             val updated = _uiState.value.achievements + newAch
             _uiState.update { it.copy(achievements = updated) }
@@ -195,7 +215,9 @@ class MiloViewModel(application: Application) : AndroidViewModel(application) {
                 id = "dev_rec_${System.currentTimeMillis()}",
                 title = title,
                 valueDisplay = value,
-                dateAchieved = "Today"
+                rawNumericValue = 210f,
+                dateAchieved = "Today",
+                category = "Focus"
             )
             val updated = _uiState.value.records + newRec
             _uiState.update { it.copy(records = updated) }

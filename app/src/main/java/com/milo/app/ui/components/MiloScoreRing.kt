@@ -30,7 +30,7 @@ import com.milo.app.ui.theme.*
 fun MiloScoreRing(
     modifier: Modifier = Modifier,
     score: ProductivityScore,
-    onClickReport: () -> void = {}
+    onClickReport: () -> Unit = {}
 ) {
     var animationTriggered by remember { mutableStateOf(false) }
     LaunchedEffect(score.overall) {

@@ -150,8 +150,11 @@ cmd_run() {
             AVD=$(emulator -list-avds | head -n1)
             if [ -n "$AVD" ]; then
                 echo "[*] Launching Android emulator ($AVD)..."
-                emulator -avd "$AVD" -netdelay none -netspeed full &
+                setsid -f emulator -avd "$AVD" -no-snapshot-load -gpu host </dev/null >/tmp/emulator.log 2>&1
                 adb wait-for-device
+                while [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" != "1" ]; do
+                    sleep 2
+                done
                 cmd_install
                 return
             fi
@@ -200,7 +203,7 @@ cmd_install() {
     echo "[*] Installing MILO on $DEVICE..."
     adb -s "$DEVICE" install -r "$TARGET_APK"
     echo "[*] Launching MILO..."
-    adb -s "$DEVICE" shell am start -n com.milo.app/.MainActivity
+    adb -s "$DEVICE" shell am start -n com.milo.app.debug/com.milo.app.MainActivity 2>/dev/null || adb -s "$DEVICE" shell am start -n com.milo.app/.MainActivity
     echo ""
     echo "MILO installed successfully."
     echo "Launching..."

@@ -51,7 +51,7 @@ fun ProfileScreen(
                     .fillMaxWidth()
                     .background(MiloCardDark, RoundedCornerShape(24.dp))
                     .padding(20.dp),
-                verticalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
