@@ -70,7 +70,7 @@ abstract class MiloDatabase : RoomDatabase() {
     }
 
     suspend fun seedInitialData() {
-        val today = LocalDate.of(2026, 9, 4)
+        val today = LocalDate.now()
 
         // Seed Core Habits
         val habits = listOf(
@@ -148,24 +148,24 @@ abstract class MiloDatabase : RoomDatabase() {
 
         // Seed Achievements
         val achievements = listOf(
-            AchievementEntity("ach_1", "First Step", "Complete your first tracked day.", "Routine", true, "2026-08-06", 1, 1, null, null),
-            AchievementEntity("ach_2", "Seven Strong", "Track seven consecutive days.", "Consistency", true, "2026-08-14", 7, 7, "4d", "7d"),
-            AchievementEntity("ach_3", "Two Weeks", "Maintain a 14-day consistency streak.", "Consistency", true, "2026-08-21", 14, 14, "7d", "14d"),
-            AchievementEntity("ach_4", "Deep Focus", "Complete a 2-hour focus session.", "Focus", true, "2026-08-19", 175, 120, "95m", "175m"),
-            AchievementEntity("ach_5", "Personal Best", "Beat your previous productivity record.", "Improvement", true, "2026-09-04", 91, 90, "87", "91"),
-            AchievementEntity("ach_6", "Comeback", "Return and improve significantly after inactivity.", "Comeback", true, "2026-08-25", 24, 20, "+12%", "+24%"),
-            AchievementEntity("ach_7", "Consistency Wins", "Complete a habit 20 times.", "Habits", true, "2026-08-28", 24, 20, "15", "24"),
-            AchievementEntity("ach_8", "Better Than Yesterday", "Improve your productivity score five times.", "Improvement", true, "2026-08-30", 5, 5, "4", "5")
+            AchievementEntity("ach_1", "First Step", "Complete your first tracked day.", "Routine", true, today.minusDays(28).toString(), 1, 1, null, null),
+            AchievementEntity("ach_2", "Seven Strong", "Track seven consecutive days.", "Consistency", true, today.minusDays(21).toString(), 7, 7, "4d", "7d"),
+            AchievementEntity("ach_3", "Two Weeks", "Maintain a 14-day consistency streak.", "Consistency", true, today.minusDays(14).toString(), 14, 14, "7d", "14d"),
+            AchievementEntity("ach_4", "Deep Focus", "Complete a 2-hour focus session.", "Focus", true, today.minusDays(7).toString(), 175, 120, "95m", "175m"),
+            AchievementEntity("ach_5", "Personal Best", "Beat your previous productivity record.", "Improvement", true, today.toString(), 91, 90, "87", "91"),
+            AchievementEntity("ach_6", "Comeback", "Return and improve significantly after inactivity.", "Comeback", true, today.minusDays(10).toString(), 24, 20, "+12%", "+24%"),
+            AchievementEntity("ach_7", "Consistency Wins", "Complete a habit 20 times.", "Habits", true, today.minusDays(5).toString(), 24, 20, "15", "24"),
+            AchievementEntity("ach_8", "Better Than Yesterday", "Improve your productivity score five times.", "Improvement", true, today.minusDays(2).toString(), 5, 5, "4", "5")
         )
         achievementDao().insertAll(achievements)
 
         // Seed Personal Records
         val records = listOf(
-            PersonalRecordEntity("rec_1", "Longest Focus Session", "175 minutes", 175f, "2026-09-04", "150 minutes", "Focus"),
-            PersonalRecordEntity("rec_2", "Longest Habit Streak", "14 days", 14f, "2026-08-28", "9 days", "Habits"),
-            PersonalRecordEntity("rec_3", "Highest Productivity Score", "91 / 100", 91f, "2026-09-02", "87 / 100", "Productivity"),
-            PersonalRecordEntity("rec_4", "Most Study Hours in a Week", "21.5 hours", 21.5f, "2026-08-30", "16.0 hours", "Study"),
-            PersonalRecordEntity("rec_5", "Best Schedule Adherence", "94%", 94f, "2026-09-03", "88%", "Discipline")
+            PersonalRecordEntity("rec_1", "Longest Focus Session", "175 minutes", 175f, today.toString(), "150 minutes", "Focus"),
+            PersonalRecordEntity("rec_2", "Longest Habit Streak", "14 days", 14f, today.minusDays(4).toString(), "9 days", "Habits"),
+            PersonalRecordEntity("rec_3", "Highest Productivity Score", "91 / 100", 91f, today.minusDays(2).toString(), "87 / 100", "Productivity"),
+            PersonalRecordEntity("rec_4", "Most Study Hours in a Week", "21.5 hours", 21.5f, today.minusDays(3).toString(), "16.0 hours", "Study"),
+            PersonalRecordEntity("rec_5", "Best Schedule Adherence", "94%", 94f, today.minusDays(1).toString(), "88%", "Discipline")
         )
         recordDao().insertAll(records)
     }

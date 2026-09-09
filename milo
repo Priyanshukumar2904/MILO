@@ -95,7 +95,7 @@ cmd_apk() {
     TARGET_APK="$DIST_DIR/Milo-$VERSION_NAME.apk"
     STABLE_APK="$DIST_DIR/Milo.apk"
     
-    if [ -f "./gradlew" ] && [ -n "$ANDROID_HOME" ]; then
+    if [ -f "./gradlew" ]; then
         if [ "$MODE" = "debug" ]; then
             ./gradlew assembleDebug
             SRC_APK=$(find app/build/outputs/apk/debug -name "*.apk" | head -n1)
@@ -103,17 +103,15 @@ cmd_apk() {
             ./gradlew assembleRelease
             SRC_APK=$(find app/build/outputs/apk/release -name "*.apk" | head -n1)
         fi
-        cp "$SRC_APK" "$TARGET_APK"
+        if [ -n "$SRC_APK" ] && [ -f "$SRC_APK" ]; then
+            cp "$SRC_APK" "$TARGET_APK"
+        else
+            echo "[-] Error: APK build failed to produce an output file." >&2
+            exit 1
+        fi
     else
-        echo "[*] Packaging standalone MILO package (Target SDK 35)..."
-        cat << APK_META > "$TARGET_APK"
-MILO_ANDROID_PACKAGE_V${VERSION_NAME}_BUILD_${VERSION_CODE}_SIGNED_RELEASE
-Package: com.milo.app
-Architecture: Kotlin 2.0 + Jetpack Compose + Material 3
-Persistence: Room SQLite (Offline-First)
-Mascot: Milo (8 Canvas Emotional States)
-TargetSdk: 35 | MinSdk: 26
-APK_META
+        echo "[-] Error: ./gradlew not found. Cannot build genuine Android APK." >&2
+        exit 1
     fi
     
     cp "$TARGET_APK" "$STABLE_APK"

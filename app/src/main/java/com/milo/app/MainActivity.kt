@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.milo.app.domain.models.Activity
+import com.milo.app.domain.models.UpdateState
 import com.milo.app.ui.components.MiloBottomNav
 import com.milo.app.ui.components.MiloNavTab
 import com.milo.app.ui.dialogs.*
@@ -45,6 +46,14 @@ fun MiloMainApp(viewModel: MiloViewModel) {
     var timerActivity by remember { mutableStateOf<Activity?>(null) }
     var showZenFocus by remember { mutableStateOf(false) }
     var showUpdateDialog by remember { mutableStateOf(false) }
+    var showAuthDialog by remember { mutableStateOf(false) }
+
+    // Prompt user when update becomes available
+    LaunchedEffect(state.updateState) {
+        if (state.updateState == UpdateState.UPDATE_AVAILABLE) {
+            showUpdateDialog = true
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize().background(MiloBlack),
@@ -62,6 +71,7 @@ fun MiloMainApp(viewModel: MiloViewModel) {
                     feedback = state.feedback,
                     activities = state.activities,
                     goals = state.goals,
+                    userName = state.currentUser?.username ?: "Explorer",
                     onToggleActivity = { viewModel.toggleActivityStatus(it) },
                     onStartTimer = { timerActivity = it },
                     onSelectActivity = { timerActivity = it },
@@ -69,34 +79,39 @@ fun MiloMainApp(viewModel: MiloViewModel) {
                     onOpenReflection = { showDailyReport = true }
                 )
 
-                MiloNavTab.SCHEDULE -> ScheduleScreen(
+                MiloNavTab.PLANNER -> PlannerScreen(
                     activities = state.activities,
-                    onSelectActivity = { timerActivity = it }
+                    habits = state.habits,
+                    habitCompletions = state.habitCompletions,
+                    onToggleActivity = { viewModel.toggleActivityStatus(it) },
+                    onStartTimer = { timerActivity = it },
+                    onSelectActivity = { timerActivity = it },
+                    onToggleHabit = { viewModel.toggleHabit(it) }
                 )
 
                 MiloNavTab.INSIGHTS -> InsightsScreen(
                     insights = state.insights,
                     trends = state.trends,
                     scorecards = state.scorecards,
+                    records = state.records,
+                    achievements = state.achievements,
                     onOpenWeeklyReport = { showWeeklyReport = true },
                     onOpenMonthlyReport = { showMonthlyReport = true }
                 )
 
-                MiloNavTab.HABITS -> HabitsScreen(
-                    habits = state.habits,
-                    completions = state.habitCompletions,
-                    onToggleHabit = { viewModel.toggleHabit(it) }
-                )
-
-                MiloNavTab.PROFILE -> ProfileScreen(
-                    records = state.records,
-                    achievements = state.achievements,
-                    onCheckUpdate = { showUpdateDialog = true },
-                    onResetData = { viewModel.resetDemoData() },
-                    onSetProfileMode = { viewModel.setProfileMode(it) },
-                    onTriggerAchievement = { viewModel.triggerAchievement() },
-                    onTriggerRecord = { viewModel.triggerPersonalRecord() },
-                    onTriggerUpdateNotice = { showUpdateDialog = true }
+                MiloNavTab.ACCOUNT -> ProfileScreen(
+                    currentUser = state.currentUser,
+                    isSyncing = state.isSyncing,
+                    syncMessage = state.syncMessage,
+                    appVersionName = BuildConfig.VERSION_NAME,
+                    onOpenAuth = { showAuthDialog = true },
+                    onLogout = { viewModel.logout() },
+                    onSyncNow = { viewModel.triggerSync() },
+                    onCheckUpdate = {
+                        viewModel.checkForUpdates { hasUpdate ->
+                            showUpdateDialog = true
+                        }
+                    }
                 )
             }
 
@@ -138,6 +153,15 @@ fun MiloMainApp(viewModel: MiloViewModel) {
                 ZenFocusScreen(
                     onDismiss = { showZenFocus = false },
                     onSaveFocus = { showZenFocus = false }
+                )
+            }
+
+            if (showAuthDialog) {
+                AuthDialog(
+                    onLogin = { email, pass -> viewModel.login(email, pass) },
+                    onRegister = { name, email, pass -> viewModel.register(name, email, pass) },
+                    onGuest = { viewModel.continueAsGuest() },
+                    onDismiss = { showAuthDialog = false }
                 )
             }
 

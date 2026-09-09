@@ -1,19 +1,18 @@
 {
-  "versionCode": 10400,
-  "versionName": "1.4.0",
-  "minSupportedVersionCode": 10,
-  "releaseDate": "2026-09-05",
-  "downloadUrl": "https://github.com/Priyanshukumar2904/MILO/releases/download/v1.4.0/milo-v1.4.0-release.apk",
-  "sha256": "8f8cea4906726da3555705e494f2dc03c86bdd2a9e9d088ff41791e0f1408dce",
-  "fileSizeBytes": 242,
+  "versionCode": 10500,
+  "versionName": "1.5.0",
+  "minSupportedVersionCode": 10400,
+  "releaseDate": "2026-09-10",
+  "downloadUrl": "https://github.com/Priyanshukumar2904/MILO/releases/download/v1.5.0/Milo.apk",
+  "sha256": "5a5ebbbb17224a8d7825a2a69639cd91a8c36e55bc3113b97f256cc9e735796d",
+  "fileSizeBytes": 1301587,
   "criticalUpdate": false,
   "changelog": [
-    "Milo mascot: Added 8 interactive emotional states with vector ear twitches and blinking canvas animations.",
-    "Personal Productivity Score (0-100) with real-time delta vs previous day and 5-factor breakdown.",
-    "Schedule engine: Integrated Day, Week, and Month time-blocking with fluid gesture navigation.",
-    "Habit Consistency Matrix: 7-day visual adherence tracking with streak velocity metrics.",
-    "Monthly Life Report: Generates supportive summary narrative celebrating showing up.",
-    "Live Focus Timer: Zen ambient mode with session tracking and battery-efficient WorkManager sync.",
-    "Self-hosted distribution: Embedded SHA-256 APK checksum validation before package installation."
+    "Production-Ready Release: Genuine signed Android release binary (~1.3 MB) distributed on GitHub Releases.",
+    "User Authentication & Android KeyStore Vault: Hardware-backed AES-GCM encrypted session storage supporting Login, Registration, and Offline Guest modes.",
+    "Streamlined 4-Tab Navigation: Consolidated app sections into Today, Planner (integrated Schedule & Habits), Insights, and Account.",
+    "Larger Typography & Enhanced Legibility: Scaled up font sizes and touch targets across all screens for effortless readability.",
+    "Automated In-App Update Engine: Verified remote manifest fetching, streaming APK downloads, and SHA-256 integrity checks.",
+    "Clean Architecture: Removed legacy developer test controls in favor of dynamic production Room database and WorkManager sync."
   ]
 }

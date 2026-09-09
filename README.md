@@ -22,7 +22,7 @@
   <img src="https://img.shields.io/badge/View_Demo-Interactive_GIF-18181B?style=for-the-badge&logo=playstation&logoColor=white" alt="View Demo" />
 </a>
 <a href="https://github.com/Priyanshukumar2904/MILO/releases/latest">
-  <img src="https://img.shields.io/badge/Latest_Release-v1.4.0-27272A?style=for-the-badge" alt="Latest Release" />
+  <img src="https://img.shields.io/badge/Latest_Release-v1.5.0-27272A?style=for-the-badge" alt="Latest Release" />
 </a>
 
 <br/><br/>

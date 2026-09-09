@@ -21,10 +21,9 @@ import com.milo.app.ui.theme.*
 
 enum class MiloNavTab(val label: String, val icon: ImageVector) {
     TODAY("Today", Icons.Default.WbSunny),
-    SCHEDULE("Schedule", Icons.Default.CalendarMonth),
+    PLANNER("Planner", Icons.Default.CalendarMonth),
     INSIGHTS("Insights", Icons.Default.AutoAwesome),
-    HABITS("Habits", Icons.Default.CheckCircle),
-    PROFILE("Profile", Icons.Default.Person)
+    ACCOUNT("Account", Icons.Default.Person)
 }
 
 @Composable
@@ -35,42 +34,47 @@ fun MiloBottomNav(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MiloBlack.copy(alpha = 0.95f))
-            .padding(vertical = 8.dp, horizontal = 12.dp),
+            .background(MiloBlack.copy(alpha = 0.96f))
+            .padding(vertical = 10.dp, horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        MiloNavTab.values().forEach { tab ->
+        MiloNavTab.entries.forEach { tab ->
             val isSelected = (tab == currentTab)
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .clip(RoundedCornerShape(16.dp))
                     .clickable { onTabSelected(tab) }
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                    .padding(horizontal = 14.dp, vertical = 6.dp)
             ) {
                 Icon(
                     imageVector = tab.icon,
                     contentDescription = tab.label,
                     tint = if (isSelected) MiloWhite else MiloZinc500,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(22.dp)
                 )
 
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
                     text = tab.label,
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = 12.sp,
+                        fontWeight = if (isSelected) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Medium
+                    ),
                     color = if (isSelected) MiloWhite else MiloZinc500
                 )
 
                 if (isSelected) {
                     Box(
                         modifier = Modifier
-                            .padding(top = 2.dp)
-                            .size(3.dp)
+                            .padding(top = 3.dp)
+                            .size(4.dp)
                             .background(MiloWhite, CircleShape)
                     )
+                } else {
+                    Spacer(modifier = Modifier.height(7.dp))
                 }
             }
         }
