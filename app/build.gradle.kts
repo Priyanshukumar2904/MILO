@@ -22,15 +22,27 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("milo-release.jks")
+            storePassword = "milopassword"
+            keyAlias = "milo"
+            keyPassword = "milopassword"
+            enableV1Signing = true
+            enableV2Signing = true
+            enableV3Signing = true
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
         debug {
             applicationIdSuffix = ".debug"
