@@ -1,18 +1,18 @@
 {
-  "versionCode": 10500,
-  "versionName": "1.5.0",
+  "versionCode": 10501,
+  "versionName": "1.5.1",
   "minSupportedVersionCode": 10400,
-  "releaseDate": "2026-09-10",
-  "downloadUrl": "https://github.com/Priyanshukumar2904/MILO/releases/download/v1.5.0/Milo.apk",
-  "sha256": "61b06c57cbe0b51629771ae783366569763c6c0d2dc82f528f7632d10cb83194",
-  "fileSizeBytes": 11487509,
+  "releaseDate": "2026-09-12",
+  "downloadUrl": "https://github.com/Priyanshukumar2904/MILO/releases/download/v1.5.1/Milo.apk",
+  "sha256": "82600b33790954eddb1923b187d1b093d91f71fd61f55fae2b39f66258eeee96",
+  "fileSizeBytes": 11525274,
   "criticalUpdate": false,
   "changelog": [
+    "Interactive Tutorial Onboarding, secure on-device authorization vault, and clean initial fresh start",
     "Production-Ready Release: Genuine signed Android release binary (11 MB) distributed on GitHub Releases.",
     "Hardware Release Keystore: Signed with dedicated RSA 2048-bit production keystore with v2 & v3 signature schemes.",
     "User Authentication & Android KeyStore Vault: Hardware-backed AES-GCM encrypted session storage supporting Login, Registration, and Offline Guest modes.",
     "Streamlined 4-Tab Navigation: Consolidated app sections into Today, Planner (integrated Schedule & Habits), Insights, and Account.",
-    "Larger Typography & Enhanced Legibility: Scaled up font sizes and touch targets across all screens for effortless readability.",
-    "Automated In-App Update Engine: Verified remote manifest fetching, streaming APK downloads, and SHA-256 integrity checks."
+    "Larger Typography & Enhanced Legibility: Scaled up font sizes and touch targets across all screens for effortless readability."
   ]
 }
