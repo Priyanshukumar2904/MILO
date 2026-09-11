@@ -305,11 +305,11 @@ NOTES_EOF
 
         # Clean up older GitHub releases so only the single latest release is shown
         echo "[*] Ensuring GitHub only displays the latest release..."
-        OLD_RELEASES=$(gh release list | awk '{print $3}' | grep -v "^$TAG$" || true)
+        OLD_RELEASES=$(gh release list --json tagName -q '.[].tagName' 2>/dev/null | grep -v "^$TAG$" || true)
         for OLD_REL in $OLD_RELEASES; do
             if [ -n "$OLD_REL" ] && [ "$OLD_REL" != "$TAG" ]; then
                 echo "    • Removing older release from GitHub: $OLD_REL"
-                gh release delete "$OLD_REL" -y || true
+                gh release delete "$OLD_REL" -y --cleanup-tag || true
             fi
         done
 
