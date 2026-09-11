@@ -83,7 +83,8 @@ class AppUpdateInstaller(private val context: Context) {
                 isMandatory = json.optBoolean("criticalUpdate", false),
                 minimumSupportedVersionCode = json.optInt("minSupportedVersionCode", 10),
                 releaseDate = json.optString("releaseDate", "Today"),
-                releaseNotes = changelogList
+                releaseNotes = changelogList,
+                fileSizeBytes = json.optLong("fileSizeBytes", 0L)
             )
             Result.success(manifest)
         } catch (e: Exception) {
@@ -153,27 +154,32 @@ class AppUpdateInstaller(private val context: Context) {
     }
 
     fun installApk(apkFile: File, expectedSha256: String, targetVersionCode: Int): Boolean {
-        val isVerified = verifier.verifyApk(
-            apkFile = apkFile,
-            expectedSha256 = expectedSha256,
-            expectedMinVersionCode = 10,
-            targetVersionCode = targetVersionCode
-        )
-        if (!isVerified) return false
+        return try {
+            val isVerified = verifier.verifyApk(
+                apkFile = apkFile,
+                expectedSha256 = expectedSha256,
+                expectedMinVersionCode = 10,
+                targetVersionCode = targetVersionCode
+            )
+            if (!isVerified) return false
 
-        val apkUri: Uri = FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.fileprovider",
-            apkFile
-        )
+            val apkUri: Uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                apkFile
+            )
 
-        val installIntent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(apkUri, "application/vnd.android.package-archive")
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            val installIntent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(apkUri, "application/vnd.android.package-archive")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+
+            context.startActivity(installIntent)
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
         }
-
-        context.startActivity(installIntent)
-        return true
     }
 }

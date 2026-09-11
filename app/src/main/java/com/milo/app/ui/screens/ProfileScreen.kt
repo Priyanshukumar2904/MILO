@@ -93,7 +93,7 @@ fun ProfileScreen(
                                     .padding(horizontal = 10.dp, vertical = 4.dp)
                             ) {
                                 Text(
-                                    text = if (currentUser?.isGuest == false) "✓ Encrypted Cloud Account" else "Guest Mode (Local Vault)",
+                                    text = if (currentUser?.isGuest == false) "✓ Hardware KeyStore Secured" else "Offline Vault (On-Device)",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = if (currentUser?.isGuest == false) MiloGreen else MiloZinc300
                                 )
@@ -154,26 +154,26 @@ fun ProfileScreen(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.CloudSync,
-                            contentDescription = "Cloud Sync",
+                            imageVector = Icons.Default.Lock,
+                            contentDescription = "Local Storage",
                             tint = MiloWhite,
                             modifier = Modifier.size(22.dp)
                         )
                         Text(
-                            text = "DATA BACKUP & SYNC",
+                            text = "DATA SOVEREIGNTY & PRIVACY",
                             style = MaterialTheme.typography.labelSmall,
                             color = MiloZinc400
                         )
                     }
 
                     Text(
-                        text = "Encrypted Local & Remote Synchronization",
+                        text = "100% On-Device Local Storage",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = MiloWhite
                     )
 
                     Text(
-                        text = "All your activities, habits, and scores are persisted safely in the local Room database and synced securely in the background.",
+                        text = "All your activities, habits, scores, and reflections are stored exclusively in your device's local Room database. Zero personal data leaves your phone.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MiloZinc400
                     )

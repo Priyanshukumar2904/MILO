@@ -24,11 +24,16 @@ fun UpdateExperienceDialog(
     downloadProgress: Float,
     downloadedMb: Float,
     totalMb: Float,
+    errorMessage: String? = null,
     onStartDownload: () -> Unit,
     onInstallNow: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(onDismissRequest = {
+        if (updateState != UpdateState.DOWNLOADING && updateState != UpdateState.VERIFYING) {
+            onDismiss()
+        }
+    }) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -44,7 +49,13 @@ fun UpdateExperienceDialog(
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 MiloCompanion(
-                    emotion = if (updateState == UpdateState.DOWNLOADING) MiloEmotion.Curious else MiloEmotion.Happy,
+                    emotion = when (updateState) {
+                        UpdateState.DOWNLOADING -> MiloEmotion.Curious
+                        UpdateState.VERIFYING -> MiloEmotion.Calm
+                        UpdateState.READY_TO_INSTALL, UpdateState.ANDROID_INSTALLER -> MiloEmotion.Celebrating
+                        UpdateState.FAILED -> MiloEmotion.Sleepy
+                        else -> MiloEmotion.Happy
+                    },
                     size = 64.dp
                 )
 
@@ -55,7 +66,12 @@ fun UpdateExperienceDialog(
                 )
 
                 Text(
-                    text = "“Got something new for you.”",
+                    text = when (updateState) {
+                        UpdateState.DOWNLOADING -> "“Fetching the latest improvements...”"
+                        UpdateState.READY_TO_INSTALL, UpdateState.ANDROID_INSTALLER -> "“Almost there! Ready to upgrade.”"
+                        UpdateState.FAILED -> "“Ran into a hiccup with the network.”"
+                        else -> "“Got something new for you.”"
+                    },
                     style = MaterialTheme.typography.bodyMedium,
                     color = MiloZinc400
                 )
@@ -68,13 +84,23 @@ fun UpdateExperienceDialog(
                                 .fillMaxWidth()
                                 .background(MiloBorderDark.copy(alpha = 0.5f), RoundedCornerShape(20.dp))
                                 .padding(14.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Text(text = "WHAT'S NEW:", style = MaterialTheme.typography.labelSmall, color = MiloZinc500)
                             manifest.releaseNotes.forEach { note ->
-                                Text(text = "• $note", style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp), color = MiloZinc200)
+                                Text(
+                                    text = "• $note",
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                                    color = MiloZinc200
+                                )
                             }
                         }
+
+                        Text(
+                            text = "✓ All your activities, habits, and scores will be preserved.",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MiloGreen
+                        )
 
                         Button(
                             onClick = onStartDownload,
@@ -82,7 +108,7 @@ fun UpdateExperienceDialog(
                             colors = ButtonDefaults.buttonColors(containerColor = MiloWhite, contentColor = MiloBlack),
                             shape = RoundedCornerShape(14.dp)
                         ) {
-                            Text(text = "UPDATE NOW", fontWeight = FontWeight.Bold)
+                            Text(text = "UPDATE & INSTALL", fontWeight = FontWeight.Bold)
                         }
                     }
 
@@ -91,31 +117,62 @@ fun UpdateExperienceDialog(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(text = "Downloading APK...", style = MaterialTheme.typography.titleMedium, color = MiloWhite)
+                            Text(
+                                text = "Downloading Update...",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MiloWhite
+                            )
                             Spacer(modifier = Modifier.height(8.dp))
                             LinearProgressIndicator(
                                 progress = { downloadProgress },
-                                modifier = Modifier.fillMaxWidth().height(6.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(6.dp),
                                 color = MiloWhite,
                                 trackColor = MiloZinc800
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
-                                text = "${(downloadProgress * 100).toInt()}% • ${downloadedMb.toInt()} MB / ${totalMb.toInt()} MB",
+                                text = "${(downloadProgress * 100).toInt()}% • ${"%.1f".format(downloadedMb)} MB / ${"%.1f".format(totalMb)} MB",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MiloZinc400
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Installer will open automatically when ready",
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                                color = MiloZinc500
                             )
                         }
                     }
 
                     UpdateState.VERIFYING -> {
                         CircularProgressIndicator(color = MiloWhite)
-                        Text(text = "Verifying SHA-256 Checksum & Safety...", style = MaterialTheme.typography.bodyMedium, color = MiloZinc400)
+                        Text(
+                            text = "Verifying Package Safety & Checksum...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MiloZinc400
+                        )
                     }
 
-                    UpdateState.READY_TO_INSTALL -> {
-                        Text(text = "Ready to install securely.", style = MaterialTheme.typography.titleMedium, color = MiloGreen)
-                        Text(text = "All local data saved safely.", style = MaterialTheme.typography.labelSmall, color = MiloZinc400)
+                    UpdateState.READY_TO_INSTALL, UpdateState.ANDROID_INSTALLER -> {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = "System Installer Opened",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MiloGreen
+                            )
+                            Text(
+                                text = "Tap 'Update' in the Android prompt to complete.\nYour existing data will remain completely intact.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MiloZinc400,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                        }
 
                         Button(
                             onClick = onInstallNow,
@@ -123,7 +180,36 @@ fun UpdateExperienceDialog(
                             colors = ButtonDefaults.buttonColors(containerColor = MiloWhite, contentColor = MiloBlack),
                             shape = RoundedCornerShape(14.dp)
                         ) {
-                            Text(text = "CONFIRM & INSTALL", fontWeight = FontWeight.Bold)
+                            Text(text = "RE-OPEN INSTALLER", fontWeight = FontWeight.Bold)
+                        }
+                    }
+
+                    UpdateState.FAILED -> {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = "Update Interrupted",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Text(
+                                text = errorMessage ?: "Could not complete update. Please check your connection.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MiloZinc400,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                        }
+
+                        Button(
+                            onClick = onStartDownload,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = MiloWhite, contentColor = MiloBlack),
+                            shape = RoundedCornerShape(14.dp)
+                        ) {
+                            Text(text = "TRY AGAIN", fontWeight = FontWeight.Bold)
                         }
                     }
 
@@ -131,7 +217,10 @@ fun UpdateExperienceDialog(
                 }
 
                 TextButton(onClick = onDismiss) {
-                    Text(text = "Later", color = MiloZinc500)
+                    Text(
+                        text = if (updateState == UpdateState.DOWNLOADING || updateState == UpdateState.VERIFYING) "Dismiss" else "Later",
+                        color = MiloZinc500
+                    )
                 }
             }
         }

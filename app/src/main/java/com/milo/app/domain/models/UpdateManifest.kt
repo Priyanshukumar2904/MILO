@@ -8,7 +8,8 @@ data class UpdateManifest(
     val isMandatory: Boolean = false,
     val minimumSupportedVersionCode: Int = 10000,
     val releaseDate: String,
-    val releaseNotes: List<String>
+    val releaseNotes: List<String>,
+    val fileSizeBytes: Long = 0L
 )
 
 enum class UpdateState {

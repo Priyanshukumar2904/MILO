@@ -48,6 +48,11 @@ fun MiloMainApp(viewModel: MiloViewModel) {
     var showUpdateDialog by remember { mutableStateOf(false) }
     var showAuthDialog by remember { mutableStateOf(false) }
 
+    // Check for updates silently on app launch
+    LaunchedEffect(Unit) {
+        viewModel.checkForUpdatesSilently()
+    }
+
     // Prompt user when update becomes available
     LaunchedEffect(state.updateState) {
         if (state.updateState == UpdateState.UPDATE_AVAILABLE) {
@@ -172,6 +177,7 @@ fun MiloMainApp(viewModel: MiloViewModel) {
                     downloadProgress = state.downloadProgress,
                     downloadedMb = state.downloadedMb,
                     totalMb = state.totalMb,
+                    errorMessage = state.updateErrorMessage,
                     onStartDownload = { viewModel.startUpdateDownload() },
                     onInstallNow = { viewModel.installUpdate() },
                     onDismiss = {

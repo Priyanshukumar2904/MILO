@@ -249,21 +249,64 @@ class MiloViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // In-App Updates Mechanism
+    fun checkForUpdatesSilently(
+        manifestUrl: String = "https://raw.githubusercontent.com/Priyanshukumar2904/MILO/main/update.json"
+    ) {
+        viewModelScope.launch {
+            val bustCacheUrl = if (manifestUrl.contains("?")) {
+                "$manifestUrl&t=${System.currentTimeMillis()}"
+            } else {
+                "$manifestUrl?t=${System.currentTimeMillis()}"
+            }
+            val result = updateInstaller.fetchUpdateManifest(bustCacheUrl)
+            if (result.isSuccess) {
+                val manifest = result.getOrThrow()
+                val currentCode = BuildConfig.VERSION_CODE
+                val hasNewVersion = manifest.versionCode > currentCode
+                if (hasNewVersion) {
+                    val targetMb = if (manifest.fileSizeBytes > 0) {
+                        manifest.fileSizeBytes / (1024f * 1024f)
+                    } else {
+                        11.5f
+                    }
+                    _uiState.update {
+                        it.copy(
+                            updateManifest = manifest,
+                            totalMb = targetMb,
+                            updateState = UpdateState.UPDATE_AVAILABLE,
+                            updateErrorMessage = null
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     fun checkForUpdates(
         manifestUrl: String = "https://raw.githubusercontent.com/Priyanshukumar2904/MILO/main/update.json",
         onComplete: (Boolean) -> Unit = {}
     ) {
         viewModelScope.launch {
             _uiState.update { it.copy(updateState = UpdateState.CHECKING, updateErrorMessage = null) }
-            val result = updateInstaller.fetchUpdateManifest(manifestUrl)
+            val bustCacheUrl = if (manifestUrl.contains("?")) {
+                "$manifestUrl&t=${System.currentTimeMillis()}"
+            } else {
+                "$manifestUrl?t=${System.currentTimeMillis()}"
+            }
+            val result = updateInstaller.fetchUpdateManifest(bustCacheUrl)
             if (result.isSuccess) {
                 val manifest = result.getOrThrow()
                 val currentCode = BuildConfig.VERSION_CODE
                 val hasNewVersion = manifest.versionCode > currentCode
+                val targetMb = if (manifest.fileSizeBytes > 0) {
+                    manifest.fileSizeBytes / (1024f * 1024f)
+                } else {
+                    11.5f
+                }
                 _uiState.update {
                     it.copy(
                         updateManifest = manifest,
-                        totalMb = if (manifest.sha256.isNotEmpty()) 17f else 17f,
+                        totalMb = targetMb,
                         updateState = if (hasNewVersion) UpdateState.UPDATE_AVAILABLE else UpdateState.IDLE,
                         updateErrorMessage = if (!hasNewVersion) "You are on the latest version (${BuildConfig.VERSION_NAME})" else null
                     )
@@ -317,6 +360,7 @@ class MiloViewModel(application: Application) : AndroidViewModel(application) {
 
                 if (isShaValid) {
                     _uiState.update { it.copy(updateState = UpdateState.READY_TO_INSTALL) }
+                    installUpdate()
                 } else {
                     _uiState.update {
                         it.copy(

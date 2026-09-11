@@ -4,143 +4,97 @@
 
 **Your personal productivity companion.**
 
-*“Track your day. Understand your habits. See your progress. Become better than yesterday.”*
+*Track your day. Understand your habits. Become better than yesterday.*
 
-[![GitHub Release](https://img.shields.io/github/v/release/Priyanshukumar2904/MILO?color=white&label=Release&style=flat-square)](https://github.com/Priyanshukumar2904/MILO/releases/latest)
+<br/>
+
+[![Latest Release](https://img.shields.io/github/v/release/Priyanshukumar2904/MILO?color=white&label=Latest%20Release&style=flat-square)](https://github.com/Priyanshukumar2904/MILO/releases/latest)
 [![Android Target](https://img.shields.io/badge/Android-Target%20SDK%2035-242428?style=flat-square&logo=android&logoColor=white)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?style=flat-square&logo=kotlin&logoColor=white)](https://kotlinlang.org)
-[![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?style=flat-square&logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
-[![Offline-First](https://img.shields.io/badge/Persistence-Room%20SQLite%20(100%25%20Offline)-orange?style=flat-square)](https://developer.android.com/training/data-storage/room)
+[![UI](https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?style=flat-square&logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
+[![Privacy](https://img.shields.io/badge/Data-100%25%20On--Device-10B981?style=flat-square)](https://developer.android.com/training/data-storage/room)
 [![License](https://img.shields.io/badge/License-MIT-gray?style=flat-square)](LICENSE)
 
 <br/>
 
 <a href="https://github.com/Priyanshukumar2904/MILO/releases/latest/download/Milo.apk">
-  <img src="https://img.shields.io/badge/Download_Android_APK-Milo.apk-white?style=for-the-badge&logo=android&logoColor=black" alt="Download APK" />
-</a>
-<a href="#see-milo-in-action">
-  <img src="https://img.shields.io/badge/View_Demo-Interactive_GIF-18181B?style=for-the-badge&logo=playstation&logoColor=white" alt="View Demo" />
+  <img src="https://img.shields.io/badge/Download_Latest_APK-Milo.apk-white?style=for-the-badge&logo=android&logoColor=black" alt="Download APK" />
 </a>
 <a href="https://github.com/Priyanshukumar2904/MILO/releases/latest">
-  <img src="https://img.shields.io/badge/Latest_Release-v1.5.0-27272A?style=for-the-badge" alt="Latest Release" />
+  <img src="https://img.shields.io/badge/GitHub_Release-Latest_Only-18181B?style=for-the-badge&logo=github&logoColor=white" alt="Release Notes" />
 </a>
 
 <br/><br/>
 
-[![MILO Hero Banner](docs/screenshots/hero-banner.png)](https://github.com/Priyanshukumar2904/MILO/raw/main/milo_demo.mp4)
+[![MILO Hero Banner](docs/screenshots/hero-banner.png)](https://github.com/Priyanshukumar2904/MILO/releases/latest)
 
 </div>
 
 ---
 
-## ✦ Quick Links
-- 📥 **Direct APK Download**: [`Milo.apk`](https://github.com/Priyanshukumar2904/MILO/releases/latest/download/Milo.apk)
-- 📦 **Latest GitHub Release**: [MILO Releases](https://github.com/Priyanshukumar2904/MILO/releases/latest)
-- 🎬 **1080p Video Demonstration**: [`milo_demo.mp4`](./milo_demo.mp4)
-- 🔄 **Self-Hosted Update Manifest**: [`update.json`](./update.json)
-- 🛠️ **Developer Single-Command CLI**: [`./milo`](#development-command-center)
+## ✦ Why MILO?
+
+Most productivity applications are built like punitive surveillance checklists—they guilt-trip you with broken streaks, induce cognitive burnout, and demand perfection.
+
+**MILO is designed differently.** Native to Android with **Kotlin** and **Jetpack Compose**, MILO acts as your operating system for gradual, sustainable progress. It celebrates showing up, acknowledges rest as recovery, and keeps **100% of your data privately on your device**.
+
+### Core Highlights
+- 🎯 **Modular 0–100 Daily Scoring**: Transparent composite score weighted across task completion, time adherence, deep focus stamina, and habit discipline.
+- 🐈 **Milo the Companion**: An expressive, procedural canvas mascot with 8 emotional states who cheers your wins and supports you on slower days without guilt.
+- 📅 **Fluid Time-Blocking**: Seamless multi-scale day, week, and month scheduling with live focus timer.
+- 📊 **Resilient Habit Matrices**: Visual 7-day completion matrices and 4-week velocity curves that never shame missed days.
+- 🔒 **100% On-Device Data Sovereignty**: All your tasks, habits, reflections, and scores are stored exclusively on your device inside an encrypted local Room SQLite database. Zero external servers or tracking.
+- 🔄 **Seamless 1-Tap Updates**: Automatic in-app notification when a new version is released. One tap downloads, verifies SHA-256 integrity, and upgrades with zero data loss.
 
 ---
 
-## ✦ About MILO
-Most productivity applications are built like punitive surveillance checklists—they guilt-trip you with broken streaks, induce cognitive burnout, and demand perfection. 
-
-**MILO is designed differently.**
-
-Built natively for Android with **Kotlin** and **Jetpack Compose**, MILO acts as your personal operating system for gradual, sustainable self-improvement. It celebrates showing up, acknowledges rest as recovery, and gives you deep behavioral clarity across your days, weeks, and months.
-
-### Core Pillars:
-1. **0–100 Modular Scoring**: Transparent composite score weighted across task completion (25%), time management (20%), deep focus stamina (20%), habit discipline (20%), and routine consistency (15%).
-2. **Continuous Improvement Delta**: Real-time comparison against yesterday’s baseline (`▲ +9% Better`).
-3. **Milo the Companion**: An expressive, procedural canvas mascot with 8 emotional states who cheers your wins and supports you on slower days without guilt.
-4. **Resilient Habit Matrices**: Visual 7-day completion matrices and 4-week velocity curves that never shame missed days.
-5. **The Monthly Life Report**: A milestone retrospective anchored by the signature philosophy: *“You showed up.”*
-6. **100% Offline Data Sovereignty**: Backed by encrypted local Room SQLite with zero mandatory external servers.
-
----
-
-## # See MILO in Action
-
-The user flow is natural, fluid, and continuous:
-
-```
-   ┌──────────────┐          ┌──────────────┐          ┌───────────────────┐
-   │    Today     │  ──────► │   Schedule   │  ──────► │ Complete Activity │
-   │  Dashboard   │          │ Time-Block   │          │   & Start Timer   │
-   └──────────────┘          └──────────────┘          └─────────┬─────────┘
-                                                                 │
-   ┌──────────────┐          ┌──────────────┐          ┌─────────▼─────────┐
-   │ Monthly Life │  ◄────── │    Weekly    │  ◄────── │ Productivity Delta│
-   │    Report    │          │ Performance  │          │   Increases (+9%) │
-   └──────────────┘          └──────────────┘          └───────────────────┘
-```
-
-<div align="center">
-  <img src="docs/demo/milo-demo.gif" alt="MILO Animated Walkthrough" width="280" />
-  <p><em>Lightweight animated sequence: Today OS → Time-Blocking → Habit Matrix → Insights → Monthly Life Report</em></p>
-</div>
-
----
-
-## ✦ Screenshots
+## ✦ App Preview
 
 <div align="center">
 <table>
   <tr>
-    <td align="center"><b>Today (Dark Mode)</b></td>
-    <td align="center"><b>Today (Light Mode)</b></td>
-    <td align="center"><b>Schedule (Time-Blocking)</b></td>
+    <td align="center" width="33%"><b>Today OS</b></td>
+    <td align="center" width="33%"><b>Schedule & Time-Blocking</b></td>
+    <td align="center" width="33%"><b>Habit Consistency Matrix</b></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/today-dark.png" width="240" alt="Today Screen Dark" /></td>
-    <td><img src="docs/screenshots/today-light.png" width="240" alt="Today Screen Light" /></td>
-    <td><img src="docs/screenshots/schedule.png" width="240" alt="Schedule Screen" /></td>
+    <td><img src="docs/screenshots/today-dark.png" alt="Today Screen" /></td>
+    <td><img src="docs/screenshots/schedule.png" alt="Schedule Screen" /></td>
+    <td><img src="docs/screenshots/habits.png" alt="Habits Screen" /></td>
   </tr>
   <tr>
-    <td align="center"><b>Habit Matrix</b></td>
-    <td align="center"><b>Behavioral Insights</b></td>
-    <td align="center"><b>Weekly Report</b></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/habits.png" width="240" alt="Habits Matrix" /></td>
-    <td><img src="docs/screenshots/insights.png" width="240" alt="Behavioral Insights" /></td>
-    <td><img src="docs/screenshots/weekly-report.png" width="240" alt="Weekly Report" /></td>
-  </tr>
-  <tr>
+    <td align="center"><b>Performance Trends</b></td>
     <td align="center"><b>Monthly Life Report</b></td>
-    <td align="center"><b>Achievements</b></td>
-    <td align="center"><b>Milo Companion States</b></td>
+    <td align="center"><b>Milo Companion Mascot</b></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/life-report.png" width="240" alt="Monthly Life Report" /></td>
-    <td><img src="docs/screenshots/achievements.png" width="240" alt="Achievements Screen" /></td>
-    <td><img src="docs/screenshots/milo-mascot.png" width="240" alt="Milo Companion Mascot" /></td>
+    <td><img src="docs/screenshots/insights.png" alt="Insights Screen" /></td>
+    <td><img src="docs/screenshots/life-report.png" alt="Monthly Life Report" /></td>
+    <td><img src="docs/screenshots/milo-mascot.png" alt="Mascot Emotions" /></td>
   </tr>
 </table>
 </div>
 
 ---
 
-## ✦ Download MILO for Android
+## ✦ Download & Installation
 
-### Method 1: Direct APK Download
-1. Download the latest release asset: [**Download `Milo.apk`**](https://github.com/Priyanshukumar2904/MILO/releases/latest/download/Milo.apk)
-2. On your Android phone, tap the downloaded APK.
-3. If prompted by Android (*"For your security, your phone is not allowed to install unknown apps from this source"*), tap **Settings** and toggle **Allow from this source**.
-4. Tap **Install**, then open **MILO**.
+### Direct Install (Android Phone)
+1. Download [**`Milo.apk`**](https://github.com/Priyanshukumar2904/MILO/releases/latest/download/Milo.apk) directly onto your phone.
+2. Tap the downloaded file and select **Install**.
+3. All future updates are handled automatically in-app with 1 tap.
 
-### Method 2: One-Command USB Installation (Developers)
-Connect your Android phone with **USB Debugging** enabled and run:
+### Developer USB Push
+Connect your Android phone with **USB Debugging** enabled:
 ```bash
 ./milo install
 ```
-MILO will automatically build, install, and launch on your phone.
 
 ---
 
-## ✦ Development Command Center
+## ✦ Developer Command Center (`./milo`)
 
-You never need to memorize complex Gradle commands. The root executable `./milo` manages the entire development lifecycle:
+The single executable `./milo` manages the entire build, testing, and release lifecycle:
 
 ```bash
 ./milo <command>
@@ -148,91 +102,25 @@ You never need to memorize complex Gradle commands. The root executable `./milo`
 
 | Command | Action |
 | :--- | :--- |
-| `./milo` or `./milo run` | Launch MILO on Android Emulator / laptop preview |
-| `./milo install` | Detect USB phone, install debug APK, and launch app |
-| `./milo apk` | Build release APK (`dist/Milo.apk`) with SHA-256 hash |
-| `./milo apk debug` | Build fast debug APK for rapid iteration |
-| `./milo release` | Run tests, build APK, update manifest, and publish to GitHub Releases |
-| `./milo screenshots` | Regenerate all 10 high-resolution screenshots & demo GIF |
-| `./milo test` | Run the full unit test suite (Scoring, Analytics, Verifier) |
+| `./milo run` | Launch MILO on Android Emulator / laptop preview |
+| `./milo install` | Build debug APK, install on connected phone, and launch |
+| `./milo apk` | Build production release APK (`dist/Milo.apk`) |
+| `./milo publish [ver] [msg]` | Build, sign, commit, tag, and publish OTA update to GitHub (keeps only latest release) |
+| `./milo test` | Run engine test verifiers and unit test suite |
 | `./milo clean` | Clean all build caches and generated artifacts |
-| `./milo update` | Validate `update.json` manifest syntax and remote assets |
-| `./milo help` | Print beginner-friendly command guide |
+| `./milo update` | Validate `update.json` manifest syntax |
 
 ---
 
-## ✦ Running on Laptop (Android Emulator)
+## ✦ In-App Update Engine & Data Preservation
 
-### Prerequisites
-1. **Java 21**: Temurin / OpenJDK 21
-2. **Android Studio**: Download from [developer.android.com/studio](https://developer.android.com/studio)
-
-### Setup Steps
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/Priyanshukumar2904/MILO.git
-   cd MILO
-   ```
-2. **Create an Android Virtual Device (AVD)**:
-   - In Android Studio, open **Virtual Device Manager**.
-   - Create a device profile: **Pixel 8**, System Image **API 35** (VanillaIceCream).
-3. **Launch MILO**:
-   ```bash
-   ./milo run
-   ```
-   The script detects the emulator, builds the debug package, and starts the application immediately.
-
----
-
-## ✦ Developer Demo Controls
-
-MILO includes an internal developer menu located under **Profile → DEVELOPER DEMO CONTROLS**:
-- **High Flow (92)**: Instantly simulates a peak performance day with high score and proud mascot reactions.
-- **Rest Day (42)**: Simulates a slower day to verify gentle, supportive feedback without streak-shaming.
-- **+ Achievement**: Triggers dynamic achievement unlock modals.
-- **+ Record**: Adds personal best records.
-- **Reset 30-Day Historical Data**: Resets local Room SQLite to pre-populated realistic data from August 6 to September 4, 2026.
-
----
-
-## ✦ Verified Self-Hosted Update Architecture
-
-MILO operates autonomously without dependency on Google Play:
-1. **Check for Updates**: App queries the remote HTTPS manifest ([`update.json`](./update.json)).
-2. **Cryptographic Verification**: The downloaded APK is validated client-side with [`UpdateVerifier.kt`](app/src/main/java/com/milo/app/domain/engine/UpdateVerifier.kt) using SHA-256 before handing off to Android’s `PackageInstaller`.
-3. **Data Preservation**: Room migrations ensure user history and settings survive updates seamlessly.
-
----
-
-## ✦ Architecture & Project Map
-
-```
-MILO/
-├── milo                     # Developer CLI single-command orchestrator
-├── app/
-│   ├── src/main/
-│   │   ├── java/com/milo/app/
-│   │   │   ├── MainActivity.kt          # Root Activity & navigation host
-│   │   │   ├── domain/engine/           # Scoring, Analytics, Insights, Verifier
-│   │   │   ├── data/local/              # Room DB, DAOs, Entities, Converters
-│   │   │   ├── ui/mascot/               # MiloCompanion canvas rendering
-│   │   │   ├── ui/screens/              # Today, Schedule, Habits, Insights, Profile
-│   │   │   └── ui/dialogs/              # Daily, Weekly, Monthly Life Reports, Zen Focus
-│   │   └── res/                         # Strings, themes, file provider paths
-│   └── src/test/                        # Unit tests for scoring & analytics
-├── dist/                                # Release APK output directory
-├── docs/
-│   ├── screenshots/                     # 10 UI screenshots in dark & light
-│   └── demo/                            # milo-demo.gif walkthrough
-├── scripts/
-│   ├── release.sh                       # Automated GitHub release script
-│   └── generate_screenshots.py          # Screenshot & GIF renderer
-├── update.json                          # Distribution manifest
-├── milo_demo.mp4                        # Full 1080p demonstration video
-└── build.gradle.kts
-```
+MILO operates autonomously without dependency on third-party app stores:
+1. **Silent Background Check**: On launch, MILO checks [`update.json`](./update.json) in the background without interrupting your workflow.
+2. **1-Tap Upgrade**: When a new version is live, an in-app companion alert allows you to tap **UPDATE & INSTALL**.
+3. **Cryptographic Validation**: The downloaded APK is validated client-side with SHA-256 before invoking Android's `PackageInstaller`.
+4. **Guaranteed Data Preservation**: Updates are signed with the dedicated persistent Keystore (`milo-release.jks`), ensuring Android's package manager preserves your entire local database and user history across all updates.
 
 ---
 
 ## ✦ License
-This project is open source and available under the [MIT License](LICENSE).
+Open source and available under the [MIT License](LICENSE).

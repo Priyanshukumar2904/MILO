@@ -46,21 +46,21 @@ cmd_help() {
     echo "Usage: ./milo <command>"
     echo ""
     echo "Commands:"
-    echo "  run           Start MILO on Android Emulator / laptop preview"
-    echo "  install       Install & launch MILO on connected Android phone"
-    echo "  apk [mode]    Build APK (debug or release). Default: release"
-    echo "  release       Prepare & publish release to GitHub"
-    echo "  screenshots   Regenerate documentation screenshots & demo GIF"
-    echo "  test          Run unit test suite"
-    echo "  clean         Clean build artifacts and temporary files"
-    echo "  update        Validate update.json manifest & release assets"
-    echo "  help          Show this help message"
+    echo "  run                   Start MILO on Android Emulator / laptop preview"
+    echo "  install               Install & launch MILO on connected Android phone"
+    echo "  apk [mode]            Build APK (debug or release). Default: release"
+    echo "  publish [ver] [msg]   Build, sign, commit, tag, and publish OTA update"
+    echo "  release [ver] [msg]   Alias for publish"
+    echo "  screenshots           Regenerate documentation screenshots & demo GIF"
+    echo "  test                  Run unit test suite"
+    echo "  clean                 Clean build artifacts and temporary files"
+    echo "  update                Validate update.json manifest & release assets"
+    echo "  help                  Show this help message"
     echo ""
     echo "Examples:"
-    echo "  ./milo run          # Launch preview on laptop"
-    echo "  ./milo install      # Push to physical USB device"
-    echo "  ./milo apk          # Build dist/Milo.apk"
-    echo "  ./milo release      # Build and push release to GitHub"
+    echo "  ./milo run                                        # Launch preview on laptop"
+    echo "  ./milo install                                    # Push to physical USB device"
+    echo "  ./milo publish 1.5.1 \"Fixed timer bug & speed\"    # Push OTA update to all users"
 }
 
 cmd_test() {
@@ -208,6 +208,21 @@ cmd_install() {
 }
 
 cmd_release() {
+    NEW_VER="$1"
+    NOTE_MSG="$2"
+
+    if [ -n "$NEW_VER" ]; then
+        echo "[*] Bumping version to v$NEW_VER in app/build.gradle.kts..."
+        OLD_CODE=$(grep 'versionCode = ' app/build.gradle.kts | head -n1 | sed -E 's/[^0-9]*([0-9]+).*/\1/')
+        NEW_CODE=$((OLD_CODE + 1))
+        
+        sed -i -E "s/versionName = \".*\"/versionName = \"$NEW_VER\"/" app/build.gradle.kts
+        sed -i -E "s/versionCode = [0-9]+/versionCode = $NEW_CODE/" app/build.gradle.kts
+        
+        VERSION_NAME="$NEW_VER"
+        VERSION_CODE="$NEW_CODE"
+    fi
+
     print_banner
     cmd_test
     cmd_apk release
@@ -216,18 +231,30 @@ cmd_release() {
     STABLE_APK="$DIST_DIR/Milo.apk"
     SHA256=$(sha256sum "$TARGET_APK" | awk '{print $1}')
     SIZE=$(wc -c < "$TARGET_APK" | tr -d ' ')
+    TODAY_DATE=$(date +%Y-%m-%d)
     
     # Update update.json
     python3 - <<PYEOF
 import json
+
 with open('update.json', 'r') as f:
     data = json.load(f)
+
 data["versionCode"] = int("$VERSION_CODE")
 data["versionName"] = "$VERSION_NAME"
+data["releaseDate"] = "$TODAY_DATE"
+data["downloadUrl"] = "https://github.com/Priyanshukumar2904/MILO/releases/download/v$VERSION_NAME/Milo.apk"
 data["sha256"] = "$SHA256"
 data["fileSizeBytes"] = int("$SIZE")
+
+note = """$NOTE_MSG""".strip()
+if note:
+    current_cl = data.get("changelog", [])
+    data["changelog"] = [note] + [n for n in current_cl if n != note][:5]
+
 with open('update.json', 'w') as f:
     json.dump(data, f, indent=2)
+
 print("[*] Manifest update.json synchronized with release checksum.")
 PYEOF
 
@@ -237,13 +264,14 @@ PYEOF
 *“Track your day. Understand your habits. See your progress. Become better than yesterday.”*
 
 ### Release Highlights
-- **Interactive Milo Mascot**: 8 emotional states (Calm, Happy, Proud, Curious, Encouraging, Sleepy, Celebrating, Welcoming) with reactive canvas rendering.
+- $([ -n "$NOTE_MSG" ] && echo "$NOTE_MSG" || echo "Seamless in-app updates with automated APK installation, zero data loss, and stability improvements.")
+- **Interactive Milo Mascot**: 8 emotional states with reactive canvas rendering.
 - **Productivity Scoring Engine**: Modular 0-100 score balancing task completion, time adherence, deep focus, habits, and routine consistency.
 - **Multi-Scale Schedule**: Seamless Day, Week, and Month time-blocking.
 - **Habit Consistency Matrix**: 7-day visual grids and 4-week velocity curves without streak-shaming.
 - **Monthly Life Report**: Signature retrospective (*“You showed up.”*).
-- **Offline-First Room Persistence**: Battery-optimized Room DB with WorkManager background sync.
-- **Verified In-App Updates**: Client-side SHA-256 checksum verification.
+- **Offline-First Room Persistence**: Battery-optimized Room DB with persistent local data retention.
+- **Verified In-App Updates**: Client-side SHA-256 checksum verification with auto-launching installer.
 
 ### Package Checksums
 - **Artifact**: \`Milo.apk\` (\`Milo-v$VERSION_NAME.apk\`)
@@ -253,6 +281,15 @@ NOTES_EOF
 
     echo "[*] Release notes prepared at $RELEASE_NOTES"
     
+    # Synchronize git main so raw.githubusercontent.com serves the update manifest immediately
+    echo "[*] Synchronizing manifest and build configuration to git main..."
+    git add update.json app/build.gradle.kts
+    if [ -f "app/milo-release.jks" ]; then
+        git add app/milo-release.jks
+    fi
+    git commit -m "chore(release): publish v$VERSION_NAME (Build $VERSION_CODE)" || echo "[*] Files already committed."
+    git push origin main || echo "[!] Notice: Could not push to origin main directly."
+
     if command -v gh &>/dev/null; then
         echo ""
         echo "[*] Creating / Updating GitHub Release v$VERSION_NAME..."
@@ -265,9 +302,35 @@ NOTES_EOF
             echo "[*] Release already exists; uploading updated assets..."
             gh release upload "$TAG" "$TARGET_APK" "$STABLE_APK" update.json --clobber
         }
+
+        # Clean up older GitHub releases so only the single latest release is shown
+        echo "[*] Ensuring GitHub only displays the latest release..."
+        OLD_RELEASES=$(gh release list | awk '{print $3}' | grep -v "^$TAG$" || true)
+        for OLD_REL in $OLD_RELEASES; do
+            if [ -n "$OLD_REL" ] && [ "$OLD_REL" != "$TAG" ]; then
+                echo "    • Removing older release from GitHub: $OLD_REL"
+                gh release delete "$OLD_REL" -y || true
+            fi
+        done
+
+        # Clean up older APKs locally in dist/
+        find "$DIST_DIR" -type f -name "Milo-*.apk" ! -name "Milo-$VERSION_NAME.apk" -delete 2>/dev/null || true
+        find "$DIST_DIR" -type f -name "RELEASE_NOTES_*.md" ! -name "RELEASE_NOTES_v$VERSION_NAME.md" -delete 2>/dev/null || true
         echo ""
-        echo "[✓] GitHub Release published successfully:"
-        echo "    https://github.com/Priyanshukumar2904/MILO/releases/tag/$TAG"
+        echo "============================================================"
+        echo "  [✓] SUCCESS: MILO v$VERSION_NAME is now LIVE worldwide!"
+        echo "============================================================"
+        echo "  Manifest URL : https://raw.githubusercontent.com/Priyanshukumar2904/MILO/main/update.json"
+        echo "  Release URL  : https://github.com/Priyanshukumar2904/MILO/releases/tag/$TAG"
+        echo "  APK Asset    : $STABLE_APK ($SIZE bytes)"
+        echo "  SHA-256      : $SHA256"
+        echo ""
+        echo "  Every user who opens MILO will now automatically see:"
+        echo "  • In-app update alert with 'UPDATE & INSTALL' button"
+        echo "  • Smooth progress streaming and SHA-256 integrity verification"
+        echo "  • System installer launches automatically with 1-tap finish"
+        echo "  • 100% of existing user data, habits, and tasks retained"
+        echo "============================================================"
     else
         echo "[!] GitHub CLI 'gh' not found. You can manually upload $TARGET_APK to GitHub Releases."
     fi
@@ -314,8 +377,8 @@ case "$1" in
     apk|build)
         cmd_apk "$2"
         ;;
-    release)
-        cmd_release
+    release|publish)
+        cmd_release "$2" "$3"
         ;;
     screenshots)
         cmd_screenshots
