@@ -1,18 +1,18 @@
 {
-  "versionCode": 10501,
-  "versionName": "1.5.1",
+  "versionCode": 10502,
+  "versionName": "1.5.2",
   "minSupportedVersionCode": 10400,
   "releaseDate": "2026-09-12",
-  "downloadUrl": "https://github.com/Priyanshukumar2904/MILO/releases/download/v1.5.1/Milo.apk",
-  "sha256": "82600b33790954eddb1923b187d1b093d91f71fd61f55fae2b39f66258eeee96",
-  "fileSizeBytes": 11525274,
+  "downloadUrl": "https://github.com/Priyanshukumar2904/MILO/releases/download/v1.5.2/Milo.apk",
+  "sha256": "dbe5be3e62ed14f5d311fd79648e53ea8bd48bf1ac159a12efc169030d5cfc2c",
+  "fileSizeBytes": 11558032,
   "criticalUpdate": false,
   "changelog": [
+    "Production ready zero initial state, schedule/planner builder with quick presets, and custom activities/habits",
     "Interactive Tutorial Onboarding, secure on-device authorization vault, and clean initial fresh start",
     "Production-Ready Release: Genuine signed Android release binary (11 MB) distributed on GitHub Releases.",
     "Hardware Release Keystore: Signed with dedicated RSA 2048-bit production keystore with v2 & v3 signature schemes.",
     "User Authentication & Android KeyStore Vault: Hardware-backed AES-GCM encrypted session storage supporting Login, Registration, and Offline Guest modes.",
-    "Streamlined 4-Tab Navigation: Consolidated app sections into Today, Planner (integrated Schedule & Habits), Insights, and Account.",
-    "Larger Typography & Enhanced Legibility: Scaled up font sizes and touch targets across all screens for effortless readability."
+    "Streamlined 4-Tab Navigation: Consolidated app sections into Today, Planner (integrated Schedule & Habits), Insights, and Account."
   ]
 }
