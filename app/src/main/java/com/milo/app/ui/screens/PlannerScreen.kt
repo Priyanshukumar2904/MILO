@@ -11,19 +11,24 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.milo.app.domain.models.Activity
 import com.milo.app.domain.models.Habit
 import com.milo.app.domain.models.HabitCompletion
+import com.milo.app.domain.models.MiloEmotion
 import com.milo.app.ui.components.TimelineNode
+import com.milo.app.ui.mascot.MiloCompanion
 import com.milo.app.ui.theme.*
 import java.time.LocalDate
 
@@ -35,7 +40,9 @@ fun PlannerScreen(
     onToggleActivity: (Activity) -> Unit,
     onStartTimer: (Activity) -> Unit,
     onSelectActivity: (Activity) -> Unit,
-    onToggleHabit: (String) -> Unit
+    onToggleHabit: (String) -> Unit,
+    onAddClick: (LocalDate, Boolean) -> Unit = { _, _ -> },
+    onDeleteHabit: (String) -> Unit = {}
 ) {
     var selectedSection by remember { mutableStateOf("Schedule") }
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
@@ -74,27 +81,46 @@ fun PlannerScreen(
             }
 
             Row(
-                modifier = Modifier
-                    .background(MiloCardDark, RoundedCornerShape(16.dp))
-                    .padding(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                listOf("Schedule", "Habits").forEach { section ->
-                    val isSel = (section == selectedSection)
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(if (isSel) MiloWhite else MiloCardDark)
-                            .clickable { selectedSection = section }
-                            .padding(horizontal = 14.dp, vertical = 8.dp)
-                    ) {
-                        Text(
-                            text = section,
-                            style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = FontWeight.Bold
-                            ),
-                            color = if (isSel) MiloBlack else MiloZinc400
-                        )
+                Row(
+                    modifier = Modifier
+                        .background(MiloCardDark, RoundedCornerShape(16.dp))
+                        .padding(4.dp)
+                ) {
+                    listOf("Schedule", "Habits").forEach { section ->
+                        val isSel = (section == selectedSection)
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (isSel) MiloWhite else MiloCardDark)
+                                .clickable { selectedSection = section }
+                                .padding(horizontal = 12.dp, vertical = 7.dp)
+                        ) {
+                            Text(
+                                text = section,
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = if (isSel) MiloBlack else MiloZinc400
+                            )
+                        }
                     }
+                }
+
+                IconButton(
+                    onClick = { onAddClick(selectedDate, selectedSection == "Habits") },
+                    modifier = Modifier
+                        .size(38.dp)
+                        .background(MiloWhite, CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add Item",
+                        tint = MiloBlack,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
         }
@@ -162,24 +188,56 @@ fun PlannerScreen(
             ) {
                 if (dayActs.isEmpty()) {
                     item {
-                        Box(
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 40.dp),
-                            contentAlignment = Alignment.Center
+                                .padding(vertical = 20.dp),
+                            shape = RoundedCornerShape(22.dp),
+                            colors = CardDefaults.cardColors(containerColor = MiloCardDark)
                         ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                MiloCompanion(
+                                    emotion = MiloEmotion.Curious,
+                                    size = 64.dp
+                                )
                                 Text(
                                     text = "No activities scheduled",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MiloZinc400
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = MiloWhite
                                 )
-                                Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "Enjoy your free flow or check off your daily habits.",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MiloZinc600
+                                    text = "Build your daily flow: Wake Up, Classes, Workout, Water, Reading, or custom blocks.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MiloZinc400,
+                                    textAlign = TextAlign.Center
                                 )
+                                Button(
+                                    onClick = { onAddClick(selectedDate, false) },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MiloWhite,
+                                        contentColor = MiloBlack
+                                    ),
+                                    shape = RoundedCornerShape(12.dp),
+                                    contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "Add Activity or Routine",
+                                        fontWeight = FontWeight.Bold,
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                }
                             }
                         }
                     }
@@ -206,104 +264,198 @@ fun PlannerScreen(
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 item {
-                    Text(
-                        text = "ACTIVE DISCIPLINES",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MiloZinc500
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "ACTIVE DISCIPLINES",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MiloZinc500
+                        )
+                        TextButton(onClick = { onAddClick(today, true) }) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = null,
+                                tint = MiloWhite,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "New Habit",
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                color = MiloWhite
+                            )
+                        }
+                    }
                 }
 
-                items(habits) { h ->
-                    val isCompletedToday = habitCompletions.any { it.habitId == h.id && it.date == today && it.isCompleted }
-                    val last7Days = (6 downTo 0).map { today.minusDays(it.toLong()) }
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(MiloCardDark, RoundedCornerShape(24.dp))
-                            .border(1.dp, MiloBorderDark, RoundedCornerShape(24.dp))
-                            .padding(18.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                if (habits.isEmpty()) {
+                    item {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 20.dp),
+                            shape = RoundedCornerShape(22.dp),
+                            colors = CardDefaults.cardColors(containerColor = MiloCardDark)
                         ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = h.name,
-                                        style = MaterialTheme.typography.titleMedium.copy(
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 17.sp
-                                        ),
-                                        color = MiloWhite
-                                    )
-                                    Box(
-                                        modifier = Modifier
-                                            .background(MiloZinc800, RoundedCornerShape(8.dp))
-                                            .padding(horizontal = 8.dp, vertical = 3.dp)
-                                    ) {
-                                        Text(
-                                            text = "${h.currentStreakDays}d streak",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MiloWhite
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = "${h.category.name} • ${h.consistencyPercentage}% consistency",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MiloZinc400
-                                )
-                            }
-
-                            Box(
+                            Column(
                                 modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(CircleShape)
-                                    .background(if (isCompletedToday) MiloWhite else MiloCardDark)
-                                    .border(1.5.dp, if (isCompletedToday) MiloWhite else MiloZinc700, CircleShape)
-                                    .clickable { onToggleHabit(h.id) },
-                                contentAlignment = Alignment.Center
+                                    .fillMaxWidth()
+                                    .padding(24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
-                                if (isCompletedToday) {
+                                MiloCompanion(
+                                    emotion = MiloEmotion.Happy,
+                                    size = 64.dp
+                                )
+                                Text(
+                                    text = "No habits tracked yet",
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = MiloWhite
+                                )
+                                Text(
+                                    text = "Build micro-habits like drinking water daily, workout, or evening reading.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MiloZinc400,
+                                    textAlign = TextAlign.Center
+                                )
+                                Button(
+                                    onClick = { onAddClick(today, true) },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MiloWhite,
+                                        contentColor = MiloBlack
+                                    ),
+                                    shape = RoundedCornerShape(12.dp),
+                                    contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp)
+                                ) {
                                     Icon(
-                                        imageVector = Icons.Default.Check,
-                                        contentDescription = "Done",
-                                        tint = MiloBlack,
-                                        modifier = Modifier.size(20.dp)
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "Add Daily Habit",
+                                        fontWeight = FontWeight.Bold,
+                                        style = MaterialTheme.typography.labelMedium
                                     )
                                 }
                             }
                         }
+                    }
+                } else {
+                    items(habits) { h ->
+                        val isCompletedToday = habitCompletions.any { it.habitId == h.id && it.date == today && it.isCompleted }
+                        val last7Days = (6 downTo 0).map { today.minusDays(it.toLong()) }
 
-                        Spacer(modifier = Modifier.height(14.dp))
-
-                        // 7-day completion dots
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(MiloCardDark, RoundedCornerShape(24.dp))
+                                .border(1.dp, MiloBorderDark, RoundedCornerShape(24.dp))
+                                .padding(18.dp)
                         ) {
-                            Text(
-                                text = "Past 7 Days",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MiloZinc500
-                            )
-                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                last7Days.forEach { d ->
-                                    val done = habitCompletions.any { it.habitId == h.id && it.date == d && it.isCompleted }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = h.name,
+                                            style = MaterialTheme.typography.titleMedium.copy(
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 17.sp
+                                            ),
+                                            color = MiloWhite
+                                        )
+                                        Box(
+                                            modifier = Modifier
+                                                .background(MiloZinc800, RoundedCornerShape(8.dp))
+                                                .padding(horizontal = 8.dp, vertical = 3.dp)
+                                        ) {
+                                            Text(
+                                                text = "${h.currentStreakDays}d streak",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MiloWhite
+                                            )
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = "${h.category.name} • ${h.targetDaysPerWeek}d/week",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MiloZinc400
+                                    )
+                                }
+
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    IconButton(
+                                        onClick = { onDeleteHabit(h.id) },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.DeleteOutline,
+                                            contentDescription = "Delete Habit",
+                                            tint = MiloZinc600,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+
                                     Box(
                                         modifier = Modifier
-                                            .size(14.dp)
+                                            .size(40.dp)
                                             .clip(CircleShape)
-                                            .background(if (done) MiloWhite else MiloZinc800)
-                                    )
+                                            .background(if (isCompletedToday) MiloWhite else MiloCardDark)
+                                            .border(1.5.dp, if (isCompletedToday) MiloWhite else MiloZinc700, CircleShape)
+                                            .clickable { onToggleHabit(h.id) },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        if (isCompletedToday) {
+                                            Icon(
+                                                imageVector = Icons.Default.Check,
+                                                contentDescription = "Done",
+                                                tint = MiloBlack,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(14.dp))
+
+                            // 7-day completion dots
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Past 7 Days",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MiloZinc500
+                                )
+                                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    last7Days.forEach { d ->
+                                        val done = habitCompletions.any { it.habitId == h.id && it.date == d && it.isCompleted }
+                                        Box(
+                                            modifier = Modifier
+                                                .size(14.dp)
+                                                .clip(CircleShape)
+                                                .background(if (done) MiloWhite else MiloZinc800)
+                                        )
+                                    }
                                 }
                             }
                         }

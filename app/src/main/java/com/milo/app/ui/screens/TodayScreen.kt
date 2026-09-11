@@ -1,16 +1,20 @@
 package com.milo.app.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.milo.app.domain.engine.MotivationFeedback
@@ -35,7 +39,8 @@ fun TodayScreen(
     onStartTimer: (Activity) -> Unit,
     onSelectActivity: (Activity) -> Unit,
     onOpenDailyReport: () -> Unit,
-    onOpenReflection: () -> Unit
+    onOpenReflection: () -> Unit,
+    onAddActivity: () -> Unit = {}
 ) {
     val currentHour = remember { LocalTime.now().hour }
     val greeting = remember(currentHour) {
@@ -197,12 +202,37 @@ fun TodayScreen(
                     style = MaterialTheme.typography.labelSmall,
                     color = MiloZinc500
                 )
-                TextButton(onClick = onOpenDailyReport) {
-                    Text(
-                        text = "View Life Report →",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MiloWhite
-                    )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    FilledTonalButton(
+                        onClick = onAddActivity,
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = MiloWhite,
+                            contentColor = MiloBlack
+                        ),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add Activity",
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Add",
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)
+                        )
+                    }
+                    TextButton(onClick = onOpenDailyReport) {
+                        Text(
+                            text = "Life Report →",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MiloZinc400
+                        )
+                    }
                 }
             }
         }
@@ -212,14 +242,44 @@ fun TodayScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 24.dp),
+                        .background(MiloCardDark, RoundedCornerShape(16.dp))
+                        .border(1.dp, MiloZinc800, RoundedCornerShape(16.dp))
+                        .padding(24.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "No activities logged for today yet.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MiloZinc500
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text(
+                            text = "No activities scheduled for today",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MiloWhite,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = "Start by adding essential routines like wake up, classes, or exercise, or build a custom block.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MiloZinc500,
+                            textAlign = TextAlign.Center
+                        )
+                        Button(
+                            onClick = onAddActivity,
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MiloWhite,
+                                contentColor = MiloBlack
+                            ),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                "Add Activity or Routine",
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                            )
+                        }
+                    }
                 }
             }
         } else {

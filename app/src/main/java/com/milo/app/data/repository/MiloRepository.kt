@@ -45,6 +45,14 @@ class MiloRepository(private val database: MiloDatabase) {
         }
     }
 
+    suspend fun saveHabit(habit: Habit) {
+        database.habitDao().insertOrUpdate(habit.toEntity())
+    }
+
+    suspend fun deleteHabit(id: String) {
+        database.habitDao().deleteById(id)
+    }
+
     fun getHabitCompletions(): Flow<List<HabitCompletion>> {
         return database.habitDao().getAllCompletions().map { entities ->
             entities.map { it.toDomain() }
@@ -128,6 +136,13 @@ class MiloRepository(private val database: MiloDatabase) {
     )
 
     private fun HabitEntity.toDomain() = Habit(
+        id = id, name = name, category = category, iconName = iconName,
+        targetDaysPerWeek = targetDaysPerWeek, currentStreakDays = currentStreakDays,
+        bestStreakDays = bestStreakDays, consistencyPercentage = consistencyPercentage,
+        createdAtEpochMs = createdAtEpochMs
+    )
+
+    private fun Habit.toEntity() = HabitEntity(
         id = id, name = name, category = category, iconName = iconName,
         targetDaysPerWeek = targetDaysPerWeek, currentStreakDays = currentStreakDays,
         bestStreakDays = bestStreakDays, consistencyPercentage = consistencyPercentage,

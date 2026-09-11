@@ -1,12 +1,18 @@
 package com.milo.app.domain.engine
 
+import com.milo.app.domain.models.Activity
+import com.milo.app.domain.models.ActivityCategory
+import com.milo.app.domain.models.ActivityClassification
+import com.milo.app.domain.models.ActivityStatus
+import com.milo.app.domain.models.Habit
+import com.milo.app.domain.models.HabitCompletion
 import com.milo.app.domain.models.MiloEmotion
 
 data class MiloInsight(
     val id: String,
     val title: String,
     val observation: String,
-    val evidenceText: String, // e.g. "Based on the last 4 weeks of continuous tracking..."
+    val evidenceText: String,
     val metricHighlight: String,
     val catEmotion: MiloEmotion,
     val catQuote: String
@@ -14,55 +20,79 @@ data class MiloInsight(
 
 class InsightsEngine {
 
-    fun generateValidatedInsights(): List<MiloInsight> {
-        val sampleSize = "Based on the last 4 weeks of continuous tracking (30 recorded days)..."
+    fun generateValidatedInsights(
+        activities: List<Activity> = emptyList(),
+        habits: List<Habit> = emptyList(),
+        completions: List<HabitCompletion> = emptyList()
+    ): List<MiloInsight> {
+        // Zero fake insights on clean launch: require authentic tracked activity data
+        val completed = activities.filter { it.status == ActivityStatus.Completed }
+        if (completed.size < 3) {
+            return emptyList()
+        }
 
-        return listOf(
-            MiloInsight(
-                id = "ins_peak_window",
-                title = "Peak Productivity Window",
-                observation = "Your completion rate and focus depth are 42% higher between 9:00 AM and 12:00 PM compared to afternoons.",
-                evidenceText = sampleSize,
-                metricHighlight = "9:00 AM – 12:00 PM Peak",
-                catEmotion = MiloEmotion.Curious,
-                catQuote = "Hey... look at that. Your morning sessions are consistently your strongest."
-            ),
-            MiloInsight(
-                id = "ins_exercise_domino",
-                title = "The Exercise Domino Effect",
-                observation = "On days you complete morning movement or gym, you complete 18% more scheduled tasks throughout the day.",
-                evidenceText = sampleSize,
-                metricHighlight = "+18% task completion on workout days",
-                catEmotion = MiloEmotion.Proud,
-                catQuote = "Movement fuels momentum. When your body wakes up early, the rest of your day flows."
-            ),
-            MiloInsight(
-                id = "ins_focus_expansion",
-                title = "Lengthening Focus Sessions",
-                observation = "Your average deep focus duration expanded by 18 minutes over the past 30 days (from 42m to 60m average).",
-                evidenceText = sampleSize,
-                metricHighlight = "+18m avg focus stamina",
-                catEmotion = MiloEmotion.Happy,
-                catQuote = "Your focus stamina is visibly growing. That's compounding right before our eyes."
-            ),
-            MiloInsight(
-                id = "ins_evening_dropoff",
-                title = "Late Evening Vulnerability",
-                observation = "Activities scheduled after 10:00 PM have an 82% skip or postponement rate. Consider shifting late intentions to morning.",
-                evidenceText = sampleSize,
-                metricHighlight = "82% postponement after 10 PM",
-                catEmotion = MiloEmotion.Sleepy,
-                catQuote = "By 10 PM your brain has given its best. Protect sleep instead of pushing late tasks."
-            ),
-            MiloInsight(
-                id = "ins_morning_anchor",
-                title = "Morning Routine Anchor",
-                observation = "Your Morning Routine habit has reached 92% consistency, making it your most reliable daily foundation.",
-                evidenceText = sampleSize,
-                metricHighlight = "92% consistency rate",
-                catEmotion = MiloEmotion.Proud,
-                catQuote = "A solid morning creates an impenetrable defense against chaos. Well done!"
+        val insights = mutableListOf<MiloInsight>()
+
+        // Insight: Morning vs afternoon focus
+        val morningActs = completed.filter { it.startTime.hour in 5..12 }
+        if (morningActs.isNotEmpty()) {
+            val pct = (morningActs.size * 100) / completed.size
+            if (pct >= 50) {
+                insights.add(
+                    MiloInsight(
+                        id = "ins_morning_focus",
+                        title = "Morning Flow Window",
+                        observation = "$pct% of your completed tasks were accomplished before 1:00 PM.",
+                        evidenceText = "Based on ${completed.size} completed schedule blocks",
+                        metricHighlight = "$pct% morning focus",
+                        catEmotion = MiloEmotion.Proud,
+                        catQuote = "Your mornings are consistently strong. Protect those early hours!"
+                    )
+                )
+            }
+        }
+
+        // Insight: Active Habit consistency
+        if (habits.isNotEmpty()) {
+            val doneCompletions = completions.filter { it.isCompleted }
+            if (doneCompletions.isNotEmpty()) {
+                val topHabit = habits.maxByOrNull { h -> completions.count { it.habitId == h.id && it.isCompleted } }
+                if (topHabit != null) {
+                    val count = completions.count { it.habitId == topHabit.id && it.isCompleted }
+                    if (count > 0) {
+                        insights.add(
+                            MiloInsight(
+                                id = "ins_top_habit",
+                                title = "Consistency Anchor",
+                                observation = "'${topHabit.name}' is your most reliable daily discipline.",
+                                evidenceText = "Based on $count marked completions",
+                                metricHighlight = "$count completions",
+                                catEmotion = MiloEmotion.Happy,
+                                catQuote = "Compounding small habits creates real mastery. Keep going!"
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+        // Insight: Deep Work proportion
+        val deepWorkActs = completed.filter { it.classification == ActivityClassification.DeepWork }
+        if (deepWorkActs.isNotEmpty()) {
+            val deepMins = deepWorkActs.sumOf { if (it.actualDurationMinutes > 0) it.actualDurationMinutes else it.plannedDurationMinutes }
+            insights.add(
+                MiloInsight(
+                    id = "ins_deep_work",
+                    title = "Deep Focus Allocation",
+                    observation = "You logged $deepMins minutes in high-intensity deep focus sessions.",
+                    evidenceText = "Based on your tracked deep work blocks",
+                    metricHighlight = "${deepMins}m deep focus",
+                    catEmotion = MiloEmotion.Welcoming,
+                    catQuote = "Deep work is rare and valuable. Excellent dedication today."
+                )
             )
-        )
+        }
+
+        return insights
     }
 }

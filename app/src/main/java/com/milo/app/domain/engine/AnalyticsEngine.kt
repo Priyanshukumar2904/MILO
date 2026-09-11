@@ -50,22 +50,24 @@ class AnalyticsEngine(
             if (a.status == ActivityStatus.Completed) completedCount++
         }
 
-        val personalBest = if (studyMins >= 170) {
-            "Longest study session this week (175 minutes)"
-        } else if (productiveTotal >= 360) {
-            "Exceeded 6 hours of productive flow time today"
+        val personalBest = if (studyMins >= 120) {
+            "Strong study block of $studyMins minutes logged today"
+        } else if (productiveTotal >= 240) {
+            "Logged over 4 hours of focused activity today"
         } else null
 
-        val positive = if (dayCompletions.any { it.habitId == "h1" }) {
-            "You completed your morning routine two days in a row."
+        val positive = if (completedCount > 0) {
+            "You completed $completedCount activities on your schedule today."
+        } else if (dayCompletions.isNotEmpty()) {
+            "You marked ${dayCompletions.size} habits today."
         } else {
-            "You maintained your core morning focus block."
+            "Ready for a fresh start today."
         }
 
-        val opportunity = if (entertainmentMins > 90) {
-            "Entertainment time was 35 minutes above your weekly average."
+        val opportunity = if (plannedTotal > 0 && completedCount == 0) {
+            "Tasks planned but not yet marked complete."
         } else {
-            "Evening wind-down was delayed by 20 minutes."
+            "Maintain steady pacing without rushing."
         }
 
         return DailyReport(
@@ -115,84 +117,131 @@ class AnalyticsEngine(
             )
         }
 
-        val avgScore = dailyScores.map { it.score }.average().toInt()
-
-        // Planned vs Actual hours for key categories
         val weekActs = activities.filter { it.date in daysList }
+        val avgScore = if (weekActs.isNotEmpty()) dailyScores.map { it.score }.average().toInt() else 0
+
         val keyCats = listOf("Study", "Work", "Exercise", "Personal Dev", "Relaxation")
         val plannedVsActual = keyCats.associateWith { catName ->
             val acts = weekActs.filter { it.category.name.startsWith(catName.replace(" ", "")) }
             val plan = acts.sumOf { it.plannedDurationMinutes }
-            val act = acts.sumOf { if (it.actualDurationMinutes > 0) it.actualDurationMinutes else it.plannedDurationMinutes }
+            val act = acts.sumOf { if (it.actualDurationMinutes > 0) it.actualDurationMinutes else (if (it.status == ActivityStatus.Completed) it.plannedDurationMinutes else 0) }
             Pair(plan, act)
         }
 
-        // Habit matrix
         val habitMatrix = habits.associate { h ->
             h.name to daysList.map { d ->
                 completions.any { it.habitId == h.id && it.date == d && it.isCompleted }
             }
         }
 
+        val totalProdMins = dailyScores.sumOf { it.productiveMinutes }
+        val avgProdHours = (totalProdMins / 60f) / 7f
+
+        val completedActs = weekActs.count { it.status == ActivityStatus.Completed }
+        val adherence = if (weekActs.isNotEmpty()) (completedActs * 100) / weekActs.size else 0
+
         return WeeklyReport(
             weekStartDate = daysList.first(),
             weekEndDate = daysList.last(),
             averageScore = avgScore,
-            deltaPreviousWeek = 8, // +8% vs last week
+            deltaPreviousWeek = 0,
             dailyScores = dailyScores,
             plannedVsActual = plannedVsActual,
             habitConsistencyMatrix = habitMatrix,
-            avgProductiveHours = 6.7f,
-            avgStudyHours = 3.3f,
-            avgWorkHours = 2.8f,
-            avgExerciseHours = 0.8f,
-            habitAdherenceRate = 84,
-            scheduleAdherenceRate = 88,
-            storyHeadline = "Your focus stamina and deep study blocks grew visibly in the second half of the week. Morning anchors remained exceptionally steady."
+            avgProductiveHours = (avgProdHours * 10).toInt() / 10f,
+            avgStudyHours = 0f,
+            avgWorkHours = 0f,
+            avgExerciseHours = 0f,
+            habitAdherenceRate = if (habits.isNotEmpty()) 0 else 0,
+            scheduleAdherenceRate = adherence,
+            storyHeadline = if (weekActs.isNotEmpty()) 
+                "You logged $completedActs completed tasks this week. Keep showing up daily!" 
+            else 
+                "A clean week awaits. Add your daily routine to start building your momentum."
         )
     }
 
     fun generateMonthlyReport(
         activities: List<Activity>
     ): MonthlyReport {
+        val completed = activities.filter { it.status == ActivityStatus.Completed }
+        val totalMins = completed.sumOf { if (it.actualDurationMinutes > 0) it.actualDurationMinutes else it.plannedDurationMinutes }
+        val totalHours = totalMins / 60
+        val studyMins = completed.filter { it.category == ActivityCategory.Study }.sumOf { if (it.actualDurationMinutes > 0) it.actualDurationMinutes else it.plannedDurationMinutes }
+        val workMins = completed.filter { it.category == ActivityCategory.Work }.sumOf { if (it.actualDurationMinutes > 0) it.actualDurationMinutes else it.plannedDurationMinutes }
+        val exerciseCount = completed.count { it.category == ActivityCategory.Exercise }
+        val trackedDays = activities.map { it.date }.distinct().size
+
+        val currentMonthName = LocalDate.now().month.name.lowercase().replaceFirstChar { it.uppercase() }
+        val currentYear = LocalDate.now().year
+
         return MonthlyReport(
-            monthYear = "September 2026",
-            score = 84,
-            deltaPreviousMonth = 14,
-            trackedDaysCount = 24,
-            totalProductiveHours = 125,
-            studyHours = 37,
-            workHours = 52,
-            exerciseSessionsCount = 14,
-            longestStreakDays = 11,
-            biggestImprovement = Pair("Study Consistency", "+23%"),
-            biggestOpportunity = Pair("Sleep Consistency", "-8%"),
-            bestDayDate = LocalDate.of(2026, 9, 4),
-            bestDayScore = 92,
-            peakProductivityWindow = "9 AM – 12 PM",
-            storyNarrative = "You showed up. You completed 86% of your planned activities this month, exercised 14 times, and logged 37 deep study hours. You're not the same person who started this month."
+            monthYear = "$currentMonthName $currentYear",
+            score = if (activities.isNotEmpty()) (completed.size * 100) / activities.size else 0,
+            deltaPreviousMonth = 0,
+            trackedDaysCount = trackedDays,
+            totalProductiveHours = totalHours,
+            studyHours = studyMins / 60,
+            workHours = workMins / 60,
+            exerciseSessionsCount = exerciseCount,
+            longestStreakDays = 0,
+            biggestImprovement = Pair("Routine", "Fresh Start"),
+            biggestOpportunity = Pair("Consistency", "Day 1"),
+            bestDayDate = LocalDate.now(),
+            bestDayScore = 0,
+            peakProductivityWindow = if (completed.isNotEmpty()) "Morning" else "Building profile",
+            storyNarrative = if (activities.isNotEmpty()) 
+                "You logged $totalHours productive hours across $trackedDays days this month. Consistency is building!" 
+            else 
+                "Ready to begin your journey. Add schedule blocks and habits to watch your life progress unfold."
         )
     }
 
-    fun getCategoryScorecard(): List<CategoryScorecard> {
-        return listOf(
-            CategoryScorecard("Fitness", 91, 5.0f, 4.8f),
-            CategoryScorecard("Study", 84, 15.0f, 14.5f),
-            CategoryScorecard("Routine", 83, 4.0f, 3.9f),
-            CategoryScorecard("Work", 77, 20.0f, 18.2f),
-            CategoryScorecard("Health", 72, 7.0f, 6.0f),
-            CategoryScorecard("Personal Development", 68, 5.0f, 3.5f)
-        )
+    fun getCategoryScorecard(activities: List<Activity> = emptyList()): List<CategoryScorecard> {
+        if (activities.isEmpty()) return emptyList()
+
+        val grouped = activities.groupBy { it.category }
+        return grouped.map { (cat, acts) ->
+            val plannedHours = acts.sumOf { it.plannedDurationMinutes } / 60f
+            val actualHours = acts.sumOf { if (it.actualDurationMinutes > 0) it.actualDurationMinutes else (if (it.status == ActivityStatus.Completed) it.plannedDurationMinutes else 0) } / 60f
+            val completedCount = acts.count { it.status == ActivityStatus.Completed }
+            val score = if (acts.isNotEmpty()) (completedCount * 100) / acts.size else 0
+
+            CategoryScorecard(
+                categoryName = cat.name,
+                scorePercentage = score,
+                targetHoursWeek = (plannedHours * 10).toInt() / 10f,
+                actualHoursWeek = (actualHours * 10).toInt() / 10f
+            )
+        }
     }
 
-    fun getTrends(): List<PerformanceTrend> {
+    fun getTrends(activities: List<Activity> = emptyList(), currentScore: ProductivityScore = ProductivityScore(0, 0, 0, 0, 0, 0, 0, "")): List<PerformanceTrend> {
+        if (activities.isEmpty()) return emptyList()
+
+        val completed = activities.filter { it.status == ActivityStatus.Completed }
+        val totalMins = completed.sumOf { if (it.actualDurationMinutes > 0) it.actualDurationMinutes else it.plannedDurationMinutes }
+        val hours = totalMins / 60
+        val mins = totalMins % 60
+        val timeDisplay = if (hours > 0) "${hours}h ${mins}m" else "${mins}m"
+
         return listOf(
-            PerformanceTrend("Productivity Score", "78 / 100", "71 / 100", 9.8f, isUpward = true, isPositiveTrend = true),
-            PerformanceTrend("Deep Focus Hours", "2h 55m", "1h 30m", 94.4f, isUpward = true, isPositiveTrend = true),
-            PerformanceTrend("Exercise Consistency", "1h 00m", "45m", 33.3f, isUpward = true, isPositiveTrend = true),
-            PerformanceTrend("Sleep Schedule Adherence", "7h 20m", "7h 50m", -6.4f, isUpward = false, isPositiveTrend = false),
-            PerformanceTrend("Habit Streak Velocity", "88%", "76%", 15.8f, isUpward = true, isPositiveTrend = true),
-            PerformanceTrend("Leisure / Screen Time", "1h 50m", "2h 25m", -24.1f, isUpward = false, isPositiveTrend = true)
+            PerformanceTrend(
+                metricName = "Day Score",
+                currentDisplay = "${currentScore.overall} / 100",
+                previousDisplay = "Baseline",
+                percentageChange = currentScore.deltaYesterday.toFloat(),
+                isUpward = currentScore.deltaYesterday >= 0,
+                isPositiveTrend = true
+            ),
+            PerformanceTrend(
+                metricName = "Completed Focus Time",
+                currentDisplay = timeDisplay,
+                previousDisplay = "0m",
+                percentageChange = 100f,
+                isUpward = true,
+                isPositiveTrend = true
+            )
         )
     }
 }

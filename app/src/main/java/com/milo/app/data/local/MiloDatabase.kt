@@ -65,12 +65,12 @@ abstract class MiloDatabase : RoomDatabase() {
                 .build()
                 INSTANCE = instance
 
-                // One-time maintenance cleanup of legacy pregenerated data
+                // One-time maintenance cleanup of legacy pregenerated data (v1.5.2 clean zero-data state)
                 val prefs = context.getSharedPreferences("milo_db_maintenance", Context.MODE_PRIVATE)
-                if (!prefs.getBoolean("clean_initial_state_v1_5_1", false)) {
+                if (!prefs.getBoolean("clean_initial_state_v1_5_2", false)) {
                     CoroutineScope(Dispatchers.IO).launch {
                         instance.cleanLegacyData()
-                        prefs.edit().putBoolean("clean_initial_state_v1_5_1", true).apply()
+                        prefs.edit().putBoolean("clean_initial_state_v1_5_2", true).apply()
                     }
                 }
 
@@ -82,6 +82,8 @@ abstract class MiloDatabase : RoomDatabase() {
     suspend fun cleanLegacyData() {
         activityDao().clearAll()
         habitDao().clearAllCompletions()
+        habitDao().clearAll()
+        goalDao().clearAll()
         focusDao().clearAll()
         reflectionDao().clearAll()
         recordDao().clearAll()
@@ -89,39 +91,12 @@ abstract class MiloDatabase : RoomDatabase() {
         // Reset achievements to locked, authentic state
         achievementDao().clearAll()
         seedBaseAchievements()
-
-        // Reset starter habits with 0 completions
-        habitDao().clearAll()
-        seedStarterHabits()
-
-        // Reset starter goals
-        goalDao().clearAll()
-        seedStarterGoals()
     }
 
     suspend fun seedInitialData() {
-        seedStarterHabits()
-        seedStarterGoals()
+        // Pure clean start: zero activities, zero habits, zero goals
+        // Only base locked achievements are registered so users can unlock them naturally
         seedBaseAchievements()
-    }
-
-    private suspend fun seedStarterHabits() {
-        val habits = listOf(
-            HabitEntity("h1", "Morning Routine & Hydration", ActivityCategory.Grooming, "Sun", 7, 0, 0, 0, System.currentTimeMillis()),
-            HabitEntity("h2", "Physical Exercise & Movement", ActivityCategory.Exercise, "Activity", 5, 0, 0, 0, System.currentTimeMillis()),
-            HabitEntity("h3", "Deep Study & Focus", ActivityCategory.Study, "BookOpen", 5, 0, 0, 0, System.currentTimeMillis()),
-            HabitEntity("h4", "Read 15 Pages", ActivityCategory.PersonalDevelopment, "BookMarked", 7, 0, 0, 0, System.currentTimeMillis())
-        )
-        habitDao().insertAll(habits)
-    }
-
-    private suspend fun seedStarterGoals() {
-        val goals = listOf(
-            GoalEntity("g1", "Deep Focus Work", ActivityCategory.Study, 60, GoalUnit.Minutes, false),
-            GoalEntity("g2", "Exercise & Movement", ActivityCategory.Exercise, 30, GoalUnit.Minutes, false),
-            GoalEntity("g3", "Daily Habit Routine", ActivityCategory.Grooming, 1, GoalUnit.Boolean, true)
-        )
-        goalDao().insertAll(goals)
     }
 
     private suspend fun seedBaseAchievements() {

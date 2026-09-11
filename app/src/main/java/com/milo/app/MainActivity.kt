@@ -19,6 +19,7 @@ import com.milo.app.ui.screens.*
 import com.milo.app.ui.theme.MiloBlack
 import com.milo.app.ui.theme.MiloTheme
 import com.milo.app.ui.viewmodel.MiloViewModel
+import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
 
@@ -48,6 +49,9 @@ fun MiloMainApp(viewModel: MiloViewModel) {
     var showUpdateDialog by remember { mutableStateOf(false) }
     var showAuthDialog by remember { mutableStateOf(false) }
     var showTutorial by remember { mutableStateOf(false) }
+    var showAddDialog by remember { mutableStateOf(false) }
+    var addDialogDate by remember { mutableStateOf(LocalDate.now()) }
+    var addDialogInitialTab by remember { mutableStateOf(0) }
 
     // Check for updates silently on app launch
     LaunchedEffect(Unit) {
@@ -148,7 +152,12 @@ fun MiloMainApp(viewModel: MiloViewModel) {
                     onStartTimer = { timerActivity = it },
                     onSelectActivity = { timerActivity = it },
                     onOpenDailyReport = { showDailyReport = true },
-                    onOpenReflection = { showDailyReport = true }
+                    onOpenReflection = { showDailyReport = true },
+                    onAddActivity = {
+                        addDialogDate = LocalDate.now()
+                        addDialogInitialTab = 0
+                        showAddDialog = true
+                    }
                 )
 
                 MiloNavTab.PLANNER -> PlannerScreen(
@@ -158,7 +167,13 @@ fun MiloMainApp(viewModel: MiloViewModel) {
                     onToggleActivity = { viewModel.toggleActivityStatus(it) },
                     onStartTimer = { timerActivity = it },
                     onSelectActivity = { timerActivity = it },
-                    onToggleHabit = { viewModel.toggleHabit(it) }
+                    onToggleHabit = { viewModel.toggleHabit(it) },
+                    onDeleteHabit = { viewModel.deleteHabit(it) },
+                    onAddClick = { date, isHabit ->
+                        addDialogDate = date
+                        addDialogInitialTab = if (isHabit) 1 else 0
+                        showAddDialog = true
+                    }
                 )
 
                 MiloNavTab.INSIGHTS -> InsightsScreen(
@@ -251,6 +266,23 @@ fun MiloMainApp(viewModel: MiloViewModel) {
                     onDismiss = {
                         viewModel.dismissUpdate()
                         showUpdateDialog = false
+                    }
+                )
+            }
+
+            if (showAddDialog) {
+                AddScheduleDialog(
+                    targetDate = addDialogDate,
+                    initialTab = addDialogInitialTab,
+                    onDismiss = { showAddDialog = false },
+                    onAddPreset = { presetKey, date ->
+                        viewModel.addQuickPreset(presetKey, date)
+                    },
+                    onAddActivity = { act ->
+                        viewModel.addActivity(act)
+                    },
+                    onAddHabit = { habit ->
+                        viewModel.addHabit(habit)
                     }
                 )
             }

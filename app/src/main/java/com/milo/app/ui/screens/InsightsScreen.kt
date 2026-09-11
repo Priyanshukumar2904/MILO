@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.milo.app.domain.engine.MiloInsight
@@ -105,6 +106,36 @@ fun InsightsScreen(
                         style = MaterialTheme.typography.titleMedium,
                         color = MiloWhite
                     )
+                }
+            }
+        }
+
+        if (trends.isEmpty() && scorecards.isEmpty() && insights.isEmpty()) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MiloCardDark, RoundedCornerShape(24.dp))
+                        .padding(24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "Calibrating Insights",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MiloWhite
+                        )
+                        Text(
+                            text = "Milo learns from your real routines and habits. Log activities in your schedule and track habits to unlock behavioral patterns, velocity trends, and growth scorecards.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MiloZinc400,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
         }

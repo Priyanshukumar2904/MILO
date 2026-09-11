@@ -155,9 +155,9 @@ class MiloViewModel(application: Application) : AndroidViewModel(application) {
                         dailyReport = dailyRep,
                         weeklyReport = weeklyRep,
                         monthlyReport = monthlyRep,
-                        insights = insightsEngine.generateValidatedInsights(),
-                        trends = analyticsEngine.getTrends(),
-                        scorecards = analyticsEngine.getCategoryScorecard()
+                        insights = insightsEngine.generateValidatedInsights(acts, hbs, comps),
+                        trends = analyticsEngine.getTrends(acts, score),
+                        scorecards = analyticsEngine.getCategoryScorecard(acts)
                     )
                 }
             }.collect()
@@ -255,6 +255,148 @@ class MiloViewModel(application: Application) : AndroidViewModel(application) {
     fun saveReflection(reflection: Reflection) {
         viewModelScope.launch {
             repository.saveReflection(reflection)
+        }
+    }
+
+    fun addActivity(activity: Activity) {
+        viewModelScope.launch {
+            repository.saveActivity(activity)
+        }
+    }
+
+    fun deleteActivity(activityId: String) {
+        viewModelScope.launch {
+            repository.deleteActivity(activityId)
+        }
+    }
+
+    fun addHabit(habit: Habit) {
+        viewModelScope.launch {
+            repository.saveHabit(habit)
+        }
+    }
+
+    fun deleteHabit(habitId: String) {
+        viewModelScope.launch {
+            repository.deleteHabit(habitId)
+        }
+    }
+
+    fun addQuickPreset(presetKey: String, targetDate: LocalDate = today) {
+        viewModelScope.launch {
+            val now = System.currentTimeMillis()
+            when (presetKey) {
+                "wake_up" -> repository.saveActivity(
+                    Activity(
+                        id = "act_wake_${now}",
+                        title = "Wake Up & Hydrate",
+                        category = ActivityCategory.Grooming,
+                        date = targetDate,
+                        startTime = java.time.LocalTime.of(6, 30),
+                        endTime = java.time.LocalTime.of(7, 0),
+                        plannedDurationMinutes = 30,
+                        classification = ActivityClassification.Maintenance,
+                        priority = ActivityPriority.High,
+                        notes = "Rise early, stretch, and drink fresh water.",
+                        createdAtEpochMs = now
+                    )
+                )
+                "get_ready" -> repository.saveActivity(
+                    Activity(
+                        id = "act_ready_${now}",
+                        title = "Get Ready & Morning Grooming",
+                        category = ActivityCategory.Grooming,
+                        date = targetDate,
+                        startTime = java.time.LocalTime.of(7, 0),
+                        endTime = java.time.LocalTime.of(7, 30),
+                        plannedDurationMinutes = 30,
+                        classification = ActivityClassification.Maintenance,
+                        priority = ActivityPriority.Medium,
+                        notes = "Freshen up, shower, and prepare for the day.",
+                        createdAtEpochMs = now
+                    )
+                )
+                "classes" -> repository.saveActivity(
+                    Activity(
+                        id = "act_class_${now}",
+                        title = "Classes & Lectures",
+                        category = ActivityCategory.Study,
+                        date = targetDate,
+                        startTime = java.time.LocalTime.of(9, 0),
+                        endTime = java.time.LocalTime.of(12, 0),
+                        plannedDurationMinutes = 180,
+                        classification = ActivityClassification.DeepWork,
+                        priority = ActivityPriority.High,
+                        notes = "Attend lectures, take key notes, and engage actively.",
+                        createdAtEpochMs = now
+                    )
+                )
+                "exercise" -> repository.saveActivity(
+                    Activity(
+                        id = "act_ex_${now}",
+                        title = "Exercise & Workout",
+                        category = ActivityCategory.Exercise,
+                        date = targetDate,
+                        startTime = java.time.LocalTime.of(17, 0),
+                        endTime = java.time.LocalTime.of(18, 0),
+                        plannedDurationMinutes = 60,
+                        classification = ActivityClassification.Maintenance,
+                        priority = ActivityPriority.High,
+                        notes = "Gym, cardio, calisthenics, or running.",
+                        createdAtEpochMs = now
+                    )
+                )
+                "water" -> repository.saveHabit(
+                    Habit(
+                        id = "hab_water_${now}",
+                        name = "Drink 2.5L Water Daily",
+                        category = ActivityCategory.Health,
+                        iconName = "Droplet",
+                        targetDaysPerWeek = 7,
+                        createdAtEpochMs = now
+                    )
+                )
+                "reading" -> repository.saveActivity(
+                    Activity(
+                        id = "act_read_${now}",
+                        title = "Evening Reading & Self-Study",
+                        category = ActivityCategory.PersonalDevelopment,
+                        date = targetDate,
+                        startTime = java.time.LocalTime.of(20, 0),
+                        endTime = java.time.LocalTime.of(20, 45),
+                        plannedDurationMinutes = 45,
+                        classification = ActivityClassification.DeepWork,
+                        priority = ActivityPriority.Medium,
+                        notes = "Non-fiction, technical learning, or chapter reading.",
+                        createdAtEpochMs = now
+                    )
+                )
+                "wind_down" -> repository.saveActivity(
+                    Activity(
+                        id = "act_sleep_${now}",
+                        title = "Wind Down & Prepare for Sleep",
+                        category = ActivityCategory.Relaxation,
+                        date = targetDate,
+                        startTime = java.time.LocalTime.of(22, 30),
+                        endTime = java.time.LocalTime.of(23, 0),
+                        plannedDurationMinutes = 30,
+                        classification = ActivityClassification.Maintenance,
+                        priority = ActivityPriority.High,
+                        notes = "Screen-off, quiet reflections, and rest.",
+                        createdAtEpochMs = now
+                    )
+                )
+                "full_day_routine" -> {
+                    val baseDate = targetDate
+                    repository.saveActivity(Activity("act_wake_${now}", "Wake Up & Hydrate", ActivityCategory.Grooming, null, baseDate, java.time.LocalTime.of(6, 30), java.time.LocalTime.of(7, 0), 30, 0, ActivityStatus.Upcoming, ActivityPriority.High, ActivityClassification.Maintenance, "Rise with quiet intention.", true, true, "daily", now))
+                    repository.saveActivity(Activity("act_ready_${now}", "Get Ready & Breakfast", ActivityCategory.Grooming, null, baseDate, java.time.LocalTime.of(7, 0), java.time.LocalTime.of(8, 0), 60, 0, ActivityStatus.Upcoming, ActivityPriority.Medium, ActivityClassification.Maintenance, null, true, true, "daily", now + 1))
+                    repository.saveActivity(Activity("act_class_${now}", "Classes & Study Block", ActivityCategory.Study, null, baseDate, java.time.LocalTime.of(9, 0), java.time.LocalTime.of(12, 0), 180, 0, ActivityStatus.Upcoming, ActivityPriority.High, ActivityClassification.DeepWork, "Active learning and notes.", true, true, "weekdays", now + 2))
+                    repository.saveActivity(Activity("act_ex_${now}", "Exercise & Movement", ActivityCategory.Exercise, null, baseDate, java.time.LocalTime.of(17, 0), java.time.LocalTime.of(18, 0), 60, 0, ActivityStatus.Upcoming, ActivityPriority.High, ActivityClassification.Maintenance, "Physical vitality.", true, true, "daily", now + 3))
+                    repository.saveActivity(Activity("act_read_${now}", "Evening Reading & Reflection", ActivityCategory.PersonalDevelopment, null, baseDate, java.time.LocalTime.of(20, 0), java.time.LocalTime.of(20, 45), 45, 0, ActivityStatus.Upcoming, ActivityPriority.Medium, ActivityClassification.DeepWork, null, true, true, "daily", now + 4))
+                    repository.saveActivity(Activity("act_sleep_${now}", "Wind Down & Sleep", ActivityCategory.Relaxation, null, baseDate, java.time.LocalTime.of(22, 30), java.time.LocalTime.of(23, 0), 30, 0, ActivityStatus.Upcoming, ActivityPriority.High, ActivityClassification.Maintenance, null, true, true, "daily", now + 5))
+                    repository.saveHabit(Habit("hab_water_${now}", "Drink 2.5L Water Daily", ActivityCategory.Health, "Droplet", 7, 0, 0, 0, now + 6))
+                }
+            }
         }
     }
 

@@ -97,19 +97,55 @@ class AnalyticsEngineTest {
 
     @Test
     fun generateMonthlyReport_deliversSupportiveNarrative() {
-        val report = analyticsEngine.generateMonthlyReport(emptyList())
+        // Initial zero-data clean state
+        val cleanReport = analyticsEngine.generateMonthlyReport(emptyList())
+        assertEquals(0, cleanReport.score)
+        assertEquals(0, cleanReport.trackedDaysCount)
+        assertTrue(cleanReport.storyNarrative.contains("Ready to begin your journey"))
 
-        assertEquals("September 2026", report.monthYear)
-        assertTrue(report.storyNarrative.contains("You showed up"))
-        assertTrue(report.score >= 80)
-        assertTrue(report.trackedDaysCount > 20)
+        // Populated state
+        val sampleActivities = listOf(
+            Activity(
+                id = "act_1",
+                title = "Study Session",
+                category = ActivityCategory.Study,
+                status = ActivityStatus.Completed,
+                date = today,
+                startTime = LocalTime.of(10, 0),
+                endTime = LocalTime.of(12, 0),
+                plannedDurationMinutes = 120,
+                actualDurationMinutes = 120
+            )
+        )
+        val activeReport = analyticsEngine.generateMonthlyReport(sampleActivities)
+        assertEquals(100, activeReport.score)
+        assertEquals(1, activeReport.trackedDaysCount)
+        assertTrue(activeReport.storyNarrative.contains("productive hours"))
     }
 
     @Test
     fun getTrends_returnsMeaningfulPerformanceDeltas() {
-        val trends = analyticsEngine.getTrends()
+        // Clean zero-data returns empty trends list
+        val emptyTrends = analyticsEngine.getTrends(emptyList())
+        assertTrue("Trends should be empty on zero data", emptyTrends.isEmpty())
+
+        // Active state returns trends
+        val sampleActivities = listOf(
+            Activity(
+                id = "act_1",
+                title = "Study Session",
+                category = ActivityCategory.Study,
+                status = ActivityStatus.Completed,
+                date = today,
+                startTime = LocalTime.of(10, 0),
+                endTime = LocalTime.of(12, 0),
+                plannedDurationMinutes = 120,
+                actualDurationMinutes = 120
+            )
+        )
+        val trends = analyticsEngine.getTrends(sampleActivities, ProductivityScore(80, 75, 80, 85, 90, 80, 5, "Rising"))
         assertTrue("Trends should include multiple metrics", trends.isNotEmpty())
-        val scoreTrend = trends.find { it.metricName == "Productivity Score" }
+        val scoreTrend = trends.find { it.metricName == "Day Score" }
         assertNotNull(scoreTrend)
         assertTrue(scoreTrend!!.isPositiveTrend)
     }
