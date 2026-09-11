@@ -64,109 +64,77 @@ abstract class MiloDatabase : RoomDatabase() {
                 .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance
+
+                // One-time maintenance cleanup of legacy pregenerated data
+                val prefs = context.getSharedPreferences("milo_db_maintenance", Context.MODE_PRIVATE)
+                if (!prefs.getBoolean("clean_initial_state_v1_5_1", false)) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        instance.cleanLegacyData()
+                        prefs.edit().putBoolean("clean_initial_state_v1_5_1", true).apply()
+                    }
+                }
+
                 instance
             }
         }
     }
 
-    suspend fun seedInitialData() {
-        val today = LocalDate.now()
+    suspend fun cleanLegacyData() {
+        activityDao().clearAll()
+        habitDao().clearAllCompletions()
+        focusDao().clearAll()
+        reflectionDao().clearAll()
+        recordDao().clearAll()
 
-        // Seed Core Habits
+        // Reset achievements to locked, authentic state
+        achievementDao().clearAll()
+        seedBaseAchievements()
+
+        // Reset starter habits with 0 completions
+        habitDao().clearAll()
+        seedStarterHabits()
+
+        // Reset starter goals
+        goalDao().clearAll()
+        seedStarterGoals()
+    }
+
+    suspend fun seedInitialData() {
+        seedStarterHabits()
+        seedStarterGoals()
+        seedBaseAchievements()
+    }
+
+    private suspend fun seedStarterHabits() {
         val habits = listOf(
-            HabitEntity("h1", "Morning Routine", ActivityCategory.Grooming, "Sun", 7, 9, 14, 92, System.currentTimeMillis()),
-            HabitEntity("h2", "Gym & Strength", ActivityCategory.Exercise, "Activity", 5, 4, 8, 84, System.currentTimeMillis()),
-            HabitEntity("h3", "Deep Study (2h)", ActivityCategory.Study, "BookOpen", 6, 6, 12, 88, System.currentTimeMillis()),
-            HabitEntity("h4", "Read 20 Pages", ActivityCategory.PersonalDevelopment, "BookMarked", 7, 11, 16, 90, System.currentTimeMillis()),
-            HabitEntity("h5", "Sleep by 11:30 PM", ActivityCategory.Sleep, "Moon", 7, 3, 7, 74, System.currentTimeMillis())
+            HabitEntity("h1", "Morning Routine & Hydration", ActivityCategory.Grooming, "Sun", 7, 0, 0, 0, System.currentTimeMillis()),
+            HabitEntity("h2", "Physical Exercise & Movement", ActivityCategory.Exercise, "Activity", 5, 0, 0, 0, System.currentTimeMillis()),
+            HabitEntity("h3", "Deep Study & Focus", ActivityCategory.Study, "BookOpen", 5, 0, 0, 0, System.currentTimeMillis()),
+            HabitEntity("h4", "Read 15 Pages", ActivityCategory.PersonalDevelopment, "BookMarked", 7, 0, 0, 0, System.currentTimeMillis())
         )
         habitDao().insertAll(habits)
+    }
 
-        // Seed Daily Goals
+    private suspend fun seedStarterGoals() {
         val goals = listOf(
-            GoalEntity("g1", "Deep Study", ActivityCategory.Study, 180, GoalUnit.Minutes, false),
-            GoalEntity("g2", "Exercise & Movement", ActivityCategory.Exercise, 45, GoalUnit.Minutes, false),
-            GoalEntity("g3", "Reading & Learning", ActivityCategory.PersonalDevelopment, 30, GoalUnit.Minutes, false),
-            GoalEntity("g4", "Restorative Sleep", ActivityCategory.Sleep, 480, GoalUnit.Minutes, false),
-            GoalEntity("g5", "Morning Routine", ActivityCategory.Grooming, 1, GoalUnit.Boolean, true)
+            GoalEntity("g1", "Deep Focus Work", ActivityCategory.Study, 60, GoalUnit.Minutes, false),
+            GoalEntity("g2", "Exercise & Movement", ActivityCategory.Exercise, 30, GoalUnit.Minutes, false),
+            GoalEntity("g3", "Daily Habit Routine", ActivityCategory.Grooming, 1, GoalUnit.Boolean, true)
         )
         goalDao().insertAll(goals)
+    }
 
-        // Seed 30 Days of realistic activities, completions, and sessions
-        val activitiesList = mutableListOf<ActivityEntity>()
-        val completionsList = mutableListOf<HabitCompletionEntity>()
-        val focusList = mutableListOf<FocusSessionEntity>()
-        val reflectionsList = mutableListOf<ReflectionEntity>()
-
-        for (i in 29 downTo 0) {
-            val d = today.minusDays(i.toLong())
-            val isToday = (i == 0)
-            val isYesterday = (i == 1)
-
-            // Morning Routine
-            activitiesList.add(
-                ActivityEntity("act_${d}_1", "Morning Routine & Hydration", ActivityCategory.Grooming, null, d, LocalTime.of(7, 0), LocalTime.of(7, 30), 30, 30, ActivityStatus.Completed, ActivityPriority.High, ActivityClassification.Maintenance, null, true, true, "daily", System.currentTimeMillis())
-            )
-            // Exercise
-            activitiesList.add(
-                ActivityEntity("act_${d}_2", "Gym: Strength Training", ActivityCategory.Exercise, null, d, LocalTime.of(7, 30), LocalTime.of(8, 30), 60, if (isYesterday) 45 else 60, if (isYesterday) ActivityStatus.PartiallyCompleted else ActivityStatus.Completed, ActivityPriority.High, ActivityClassification.Maintenance, null, true, true, "daily", System.currentTimeMillis())
-            )
-            // Deep Study
-            activitiesList.add(
-                ActivityEntity("act_${d}_3", "Deep Study: Systems & Architecture", ActivityCategory.Study, null, d, LocalTime.of(9, 0), LocalTime.of(11, 30), 150, if (isToday) 175 else if (isYesterday) 90 else 150, if (isYesterday) ActivityStatus.PartiallyCompleted else ActivityStatus.Completed, ActivityPriority.High, ActivityClassification.DeepWork, "Worked on core consensus and storage engine.", true, true, "daily", System.currentTimeMillis())
-            )
-            // Work
-            activitiesList.add(
-                ActivityEntity("act_${d}_4", "Core Engineering Work", ActivityCategory.Work, null, d, LocalTime.of(12, 0), LocalTime.of(14, 0), 120, if (isToday) 130 else 120, ActivityStatus.Completed, ActivityPriority.High, ActivityClassification.DeepWork, null, true, true, "weekdays", System.currentTimeMillis())
-            )
-            // Reading
-            activitiesList.add(
-                ActivityEntity("act_${d}_5", "Reading: Non-Fiction & Tech", ActivityCategory.PersonalDevelopment, null, d, LocalTime.of(21, 0), LocalTime.of(21, 45), 45, 45, if (isYesterday) ActivityStatus.Skipped else ActivityStatus.Completed, ActivityPriority.High, ActivityClassification.DeepWork, null, true, true, "daily", System.currentTimeMillis())
-            )
-
-            // Habit completions
-            habits.forEach { h ->
-                val done = !(isYesterday && (h.id == "h4" || h.id == "h5"))
-                completionsList.add(HabitCompletionEntity("hc_${h.id}_$d", h.id, d, done, null))
-            }
-
-            // Focus sessions
-            if (!isYesterday) {
-                focusList.add(FocusSessionEntity("f_$d", "act_${d}_3", "Deep Focus Study Session", ActivityCategory.Study, d, LocalTime.of(9, 15), if (isToday) 175 else 150, true, "Flow state maintained"))
-            }
-
-            // Reflection
-            if (i % 2 == 0 || isYesterday) {
-                reflectionsList.add(ReflectionEntity(d, if (isToday) 4 else if (isYesterday) 3 else 5, if (isToday) "Exceptional focus block with zero distraction" else "Completed basic tasks despite fatigue", "Evening screen time drifted late", "Maintain early morning focus without checking notifications", System.currentTimeMillis()))
-            }
-        }
-
-        activityDao().insertAll(activitiesList)
-        habitDao().insertAllCompletions(completionsList)
-        focusDao().insertAll(focusList)
-        reflectionDao().insertAll(reflectionsList)
-
-        // Seed Achievements
+    private suspend fun seedBaseAchievements() {
         val achievements = listOf(
-            AchievementEntity("ach_1", "First Step", "Complete your first tracked day.", "Routine", true, today.minusDays(28).toString(), 1, 1, null, null),
-            AchievementEntity("ach_2", "Seven Strong", "Track seven consecutive days.", "Consistency", true, today.minusDays(21).toString(), 7, 7, "4d", "7d"),
-            AchievementEntity("ach_3", "Two Weeks", "Maintain a 14-day consistency streak.", "Consistency", true, today.minusDays(14).toString(), 14, 14, "7d", "14d"),
-            AchievementEntity("ach_4", "Deep Focus", "Complete a 2-hour focus session.", "Focus", true, today.minusDays(7).toString(), 175, 120, "95m", "175m"),
-            AchievementEntity("ach_5", "Personal Best", "Beat your previous productivity record.", "Improvement", true, today.toString(), 91, 90, "87", "91"),
-            AchievementEntity("ach_6", "Comeback", "Return and improve significantly after inactivity.", "Comeback", true, today.minusDays(10).toString(), 24, 20, "+12%", "+24%"),
-            AchievementEntity("ach_7", "Consistency Wins", "Complete a habit 20 times.", "Habits", true, today.minusDays(5).toString(), 24, 20, "15", "24"),
-            AchievementEntity("ach_8", "Better Than Yesterday", "Improve your productivity score five times.", "Improvement", true, today.minusDays(2).toString(), 5, 5, "4", "5")
+            AchievementEntity("ach_1", "First Step", "Complete your first tracked day.", "Routine", false, null, 0, 1, null, null),
+            AchievementEntity("ach_2", "Seven Strong", "Track seven consecutive days.", "Consistency", false, null, 0, 7, null, null),
+            AchievementEntity("ach_3", "Two Weeks", "Maintain a 14-day consistency streak.", "Consistency", false, null, 0, 14, null, null),
+            AchievementEntity("ach_4", "Deep Focus", "Complete a 2-hour focus session.", "Focus", false, null, 0, 120, null, null),
+            AchievementEntity("ach_5", "Personal Best", "Beat your previous productivity record.", "Improvement", false, null, 0, 80, null, null),
+            AchievementEntity("ach_6", "Comeback", "Return and improve significantly after inactivity.", "Comeback", false, null, 0, 20, null, null),
+            AchievementEntity("ach_7", "Consistency Wins", "Complete a habit 20 times.", "Habits", false, null, 0, 20, null, null),
+            AchievementEntity("ach_8", "Better Than Yesterday", "Improve your productivity score five times.", "Improvement", false, null, 0, 5, null, null)
         )
         achievementDao().insertAll(achievements)
-
-        // Seed Personal Records
-        val records = listOf(
-            PersonalRecordEntity("rec_1", "Longest Focus Session", "175 minutes", 175f, today.toString(), "150 minutes", "Focus"),
-            PersonalRecordEntity("rec_2", "Longest Habit Streak", "14 days", 14f, today.minusDays(4).toString(), "9 days", "Habits"),
-            PersonalRecordEntity("rec_3", "Highest Productivity Score", "91 / 100", 91f, today.minusDays(2).toString(), "87 / 100", "Productivity"),
-            PersonalRecordEntity("rec_4", "Most Study Hours in a Week", "21.5 hours", 21.5f, today.minusDays(3).toString(), "16.0 hours", "Study"),
-            PersonalRecordEntity("rec_5", "Best Schedule Adherence", "94%", 94f, today.minusDays(1).toString(), "88%", "Discipline")
-        )
-        recordDao().insertAll(records)
     }
 }

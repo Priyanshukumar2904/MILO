@@ -18,6 +18,17 @@ class MotivationEngine {
         completedActivities: Int,
         totalActivities: Int
     ): MotivationFeedback {
+        if (totalActivities == 0) {
+            return MotivationFeedback(
+                headline = "Ready to start today?",
+                supportingText = "Add a focus block or mark a habit to begin building your momentum.",
+                catEmotion = MiloEmotion.Welcoming,
+                catQuote = "Every journey begins with showing up. Let's make today count!",
+                badgeLabel = "Fresh Start",
+                isProgressPositive = true
+            )
+        }
+
         val delta = score.deltaYesterday
 
         return when {

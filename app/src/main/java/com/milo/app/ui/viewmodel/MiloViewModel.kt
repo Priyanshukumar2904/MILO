@@ -19,6 +19,7 @@ import java.time.LocalDate
 
 data class MiloUiState(
     val currentUser: UserAccount? = null,
+    val hasCompletedOnboarding: Boolean = false,
     val activities: List<Activity> = emptyList(),
     val habits: List<Habit> = emptyList(),
     val habitCompletions: List<HabitCompletion> = emptyList(),
@@ -30,13 +31,13 @@ data class MiloUiState(
     val insights: List<MiloInsight> = emptyList(),
     val trends: List<PerformanceTrend> = emptyList(),
     val scorecards: List<CategoryScorecard> = emptyList(),
-    val score: ProductivityScore = ProductivityScore(78, 82, 75, 88, 76, 84, 9, ""),
+    val score: ProductivityScore = ProductivityScore(0, 0, 0, 0, 0, 0, 0, ""),
     val feedback: MotivationFeedback = MotivationFeedback(
-        headline = "+9% compared with yesterday",
-        supportingText = "You completed activities with steady focus today.",
-        catEmotion = MiloEmotion.Proud,
-        catQuote = "Look at that pace! You moved forward today.",
-        badgeLabel = "+9% Better",
+        headline = "Ready to start today?",
+        supportingText = "Plan your first activity or mark a habit to build momentum.",
+        catEmotion = MiloEmotion.Welcoming,
+        catQuote = "Every journey begins with showing up. Let's make today count!",
+        badgeLabel = "Fresh Start",
         isProgressPositive = true
     ),
     val dailyReport: DailyReport? = null,
@@ -82,13 +83,25 @@ class MiloViewModel(application: Application) : AndroidViewModel(application) {
     init {
         BatteryAwareSyncWorker.schedulePeriodicSync(application)
 
-        // Initialize user session
-        val session = authRepository.currentUser.value ?: authRepository.continueAsGuest()
-        _uiState.update { it.copy(currentUser = session) }
+        // Initialize user session & onboarding status
+        val session = authRepository.currentUser.value
+        val onboardingDone = authRepository.hasCompletedOnboarding.value
+        _uiState.update { 
+            it.copy(
+                currentUser = session,
+                hasCompletedOnboarding = onboardingDone
+            )
+        }
 
         viewModelScope.launch {
             authRepository.currentUser.collect { user ->
                 _uiState.update { it.copy(currentUser = user) }
+            }
+        }
+
+        viewModelScope.launch {
+            authRepository.hasCompletedOnboarding.collect { completed ->
+                _uiState.update { it.copy(hasCompletedOnboarding = completed) }
             }
         }
 
@@ -178,7 +191,10 @@ class MiloViewModel(application: Application) : AndroidViewModel(application) {
 
     fun logout() {
         authRepository.logout()
-        authRepository.continueAsGuest()
+    }
+
+    fun completeOnboarding() {
+        authRepository.completeOnboarding()
     }
 
     // Remote Cloud Sync

@@ -128,4 +128,56 @@ class SecureStorageManager(context: Context) {
     fun clearSession() {
         prefs.edit().remove("auth_session").apply()
     }
+
+    fun hasCompletedOnboarding(): Boolean = prefs.getBoolean("has_completed_onboarding", false)
+
+    fun setCompletedOnboarding(completed: Boolean) {
+        prefs.edit().putBoolean("has_completed_onboarding", completed).apply()
+    }
+
+    fun saveAccountRecord(user: UserAccount, passwordHash: String) {
+        val registry = getAccountsRegistry()
+        val item = JSONObject().apply {
+            put("id", user.id)
+            put("username", user.username)
+            put("email", user.email)
+            put("passwordHash", passwordHash)
+            put("authToken", user.authToken)
+            put("createdAt", user.createdAtEpochMs)
+        }
+        registry.put(user.email.lowercase().trim(), item)
+        val encrypted = encrypt(registry.toString())
+        prefs.edit().putString("accounts_vault", encrypted).apply()
+    }
+
+    fun getAccountRecord(email: String): Pair<UserAccount, String>? {
+        val registry = getAccountsRegistry()
+        val key = email.lowercase().trim()
+        if (!registry.has(key)) return null
+        return try {
+            val item = registry.getJSONObject(key)
+            val user = UserAccount(
+                id = item.getString("id"),
+                username = item.getString("username"),
+                email = item.getString("email"),
+                authToken = item.getString("authToken"),
+                isGuest = false,
+                createdAtEpochMs = item.optLong("createdAt", System.currentTimeMillis())
+            )
+            val hash = item.getString("passwordHash")
+            Pair(user, hash)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun getAccountsRegistry(): JSONObject {
+        val cipher = prefs.getString("accounts_vault", null) ?: return JSONObject()
+        val decrypted = decrypt(cipher) ?: return JSONObject()
+        return try {
+            JSONObject(decrypted)
+        } catch (e: Exception) {
+            JSONObject()
+        }
+    }
 }

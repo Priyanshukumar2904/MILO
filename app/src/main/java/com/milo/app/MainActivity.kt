@@ -47,6 +47,7 @@ fun MiloMainApp(viewModel: MiloViewModel) {
     var showZenFocus by remember { mutableStateOf(false) }
     var showUpdateDialog by remember { mutableStateOf(false) }
     var showAuthDialog by remember { mutableStateOf(false) }
+    var showTutorial by remember { mutableStateOf(false) }
 
     // Check for updates silently on app launch
     LaunchedEffect(Unit) {
@@ -58,6 +59,72 @@ fun MiloMainApp(viewModel: MiloViewModel) {
         if (state.updateState == UpdateState.UPDATE_AVAILABLE) {
             showUpdateDialog = true
         }
+    }
+
+    // First-time onboarding tutorial flow
+    if (!state.hasCompletedOnboarding) {
+        TutorialOnboardingScreen(
+            initialPage = 0,
+            isReauthMode = false,
+            onLogin = { email, pass ->
+                val res = viewModel.login(email, pass)
+                if (res.isSuccess) viewModel.completeOnboarding()
+                res
+            },
+            onRegister = { name, email, pass ->
+                val res = viewModel.register(name, email, pass)
+                if (res.isSuccess) viewModel.completeOnboarding()
+                res
+            },
+            onGuest = {
+                viewModel.continueAsGuest()
+                viewModel.completeOnboarding()
+            },
+            onComplete = {
+                viewModel.completeOnboarding()
+            }
+        )
+        return
+    }
+
+    // Auth screen if logged out
+    if (state.currentUser == null) {
+        TutorialOnboardingScreen(
+            initialPage = 3,
+            isReauthMode = true,
+            onLogin = { email, pass ->
+                val res = viewModel.login(email, pass)
+                if (res.isSuccess) viewModel.completeOnboarding()
+                res
+            },
+            onRegister = { name, email, pass ->
+                val res = viewModel.register(name, email, pass)
+                if (res.isSuccess) viewModel.completeOnboarding()
+                res
+            },
+            onGuest = {
+                viewModel.continueAsGuest()
+                viewModel.completeOnboarding()
+            },
+            onComplete = {
+                viewModel.completeOnboarding()
+            }
+        )
+        return
+    }
+
+    // Review tutorial on demand
+    if (showTutorial) {
+        TutorialOnboardingScreen(
+            initialPage = 0,
+            isReauthMode = false,
+            onLogin = { email, pass -> viewModel.login(email, pass) },
+            onRegister = { name, email, pass -> viewModel.register(name, email, pass) },
+            onGuest = { showTutorial = false },
+            onComplete = { showTutorial = false },
+            onDismiss = { showTutorial = false }
+        )
+        return
     }
 
     Scaffold(
@@ -110,6 +177,7 @@ fun MiloMainApp(viewModel: MiloViewModel) {
                     syncMessage = state.syncMessage,
                     appVersionName = BuildConfig.VERSION_NAME,
                     onOpenAuth = { showAuthDialog = true },
+                    onOpenTutorial = { showTutorial = true },
                     onLogout = { viewModel.logout() },
                     onSyncNow = { viewModel.triggerSync() },
                     onCheckUpdate = {

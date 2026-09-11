@@ -49,6 +49,9 @@ interface HabitDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllCompletions(completions: List<HabitCompletionEntity>)
 
+    @Query("DELETE FROM habit_completions")
+    suspend fun clearAllCompletions()
+
     @Query("DELETE FROM habits")
     suspend fun clearAll()
 }
@@ -75,6 +78,9 @@ interface FocusDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(sessions: List<FocusSessionEntity>)
+
+    @Query("DELETE FROM focus_sessions")
+    suspend fun clearAll()
 }
 
 @Dao
@@ -87,6 +93,9 @@ interface ReflectionDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(reflections: List<ReflectionEntity>)
+
+    @Query("DELETE FROM reflections")
+    suspend fun clearAll()
 }
 
 @Dao
@@ -99,6 +108,9 @@ interface AchievementDao {
 
     @Query("UPDATE achievements SET isUnlocked = 1, unlockedDate = :date WHERE id = :id")
     suspend fun unlock(id: String, date: String)
+
+    @Query("DELETE FROM achievements")
+    suspend fun clearAll()
 }
 
 @Dao
@@ -108,6 +120,9 @@ interface RecordDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(records: List<PersonalRecordEntity>)
+
+    @Query("DELETE FROM personal_records")
+    suspend fun clearAll()
 }
 
 @Dao

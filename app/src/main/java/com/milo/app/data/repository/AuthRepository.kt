@@ -16,6 +16,9 @@ class AuthRepository(context: Context) {
     private val _currentUser = MutableStateFlow<UserAccount?>(secureStorage.getUserSession())
     val currentUser: StateFlow<UserAccount?> = _currentUser.asStateFlow()
 
+    private val _hasCompletedOnboarding = MutableStateFlow(secureStorage.hasCompletedOnboarding())
+    val hasCompletedOnboarding: StateFlow<Boolean> = _hasCompletedOnboarding.asStateFlow()
+
     val authState: AuthState
         get() = when {
             _currentUser.value == null -> AuthState.LOGGED_OUT
@@ -23,29 +26,35 @@ class AuthRepository(context: Context) {
             else -> AuthState.AUTHENTICATED
         }
 
+    fun completeOnboarding() {
+        secureStorage.setCompletedOnboarding(true)
+        _hasCompletedOnboarding.value = true
+    }
+
     fun login(email: String, pass: String): Result<UserAccount> {
         val trimmedEmail = email.trim().lowercase()
-        if (trimmedEmail.isEmpty() || !trimmedEmail.contains("@")) {
-            return Result.failure(IllegalArgumentException("Please enter a valid email address"))
+        if (trimmedEmail.isEmpty()) {
+            return Result.failure(IllegalArgumentException("Please enter your name or email"))
         }
-        if (pass.length < 6) {
-            return Result.failure(IllegalArgumentException("Password must be at least 6 characters"))
+        if (pass.length < 4) {
+            return Result.failure(IllegalArgumentException("Password must be at least 4 characters"))
         }
 
         val token = generateToken(trimmedEmail, pass)
-        val name = trimmedEmail.substringBefore("@").replaceFirstChar { it.uppercase() }
-        val account = UserAccount(
-            id = "usr_" + UUID.nameUUIDFromBytes(trimmedEmail.toByteArray()).toString().substring(0, 8),
-            username = name,
-            email = trimmedEmail,
-            authToken = token,
-            isGuest = false,
-            createdAtEpochMs = System.currentTimeMillis()
-        )
+        val existingRecord = secureStorage.getAccountRecord(trimmedEmail)
 
-        secureStorage.saveUserSession(account)
-        _currentUser.value = account
-        return Result.success(account)
+        if (existingRecord != null) {
+            val (account, storedHash) = existingRecord
+            if (storedHash == token) {
+                secureStorage.saveUserSession(account)
+                _currentUser.value = account
+                return Result.success(account)
+            } else {
+                return Result.failure(IllegalArgumentException("Incorrect password for this account"))
+            }
+        }
+
+        return Result.failure(IllegalArgumentException("No account found with this email or username. Please register first."))
     }
 
     fun register(username: String, email: String, pass: String): Result<UserAccount> {
@@ -54,11 +63,16 @@ class AuthRepository(context: Context) {
         if (trimmedName.isEmpty()) {
             return Result.failure(IllegalArgumentException("Please enter your name"))
         }
-        if (trimmedEmail.isEmpty() || !trimmedEmail.contains("@")) {
-            return Result.failure(IllegalArgumentException("Please enter a valid email address"))
+        if (trimmedEmail.isEmpty()) {
+            return Result.failure(IllegalArgumentException("Please enter your email or username"))
         }
-        if (pass.length < 6) {
-            return Result.failure(IllegalArgumentException("Password must be at least 6 characters"))
+        if (pass.length < 4) {
+            return Result.failure(IllegalArgumentException("Password must be at least 4 characters"))
+        }
+
+        val existingRecord = secureStorage.getAccountRecord(trimmedEmail)
+        if (existingRecord != null) {
+            return Result.failure(IllegalArgumentException("An account with this email/username already exists. Please sign in instead."))
         }
 
         val token = generateToken(trimmedEmail, pass)
@@ -71,6 +85,7 @@ class AuthRepository(context: Context) {
             createdAtEpochMs = System.currentTimeMillis()
         )
 
+        secureStorage.saveAccountRecord(account, token)
         secureStorage.saveUserSession(account)
         _currentUser.value = account
         return Result.success(account)

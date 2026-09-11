@@ -3,8 +3,10 @@ package com.milo.app.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.SystemUpdate
@@ -26,6 +28,7 @@ fun ProfileScreen(
     syncMessage: String?,
     appVersionName: String = "1.5.0",
     onOpenAuth: () -> Unit,
+    onOpenTutorial: () -> Unit = {},
     onLogout: () -> Unit,
     onSyncNow: () -> Unit,
     onCheckUpdate: () -> Unit
@@ -131,6 +134,57 @@ fun ProfileScreen(
                                 )
                             }
                         }
+                    }
+                }
+            }
+        }
+
+        // Guide & Tutorial Section
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = MiloCardDark)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        MiloCompanion(size = 38.dp)
+                        Column {
+                            Text(
+                                text = "Milo Guide & Tutorial",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MiloWhite
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Review focus principles, workflows, and on-device privacy.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MiloZinc400
+                            )
+                        }
+                    }
+                    IconButton(
+                        onClick = onOpenTutorial,
+                        modifier = Modifier
+                            .background(MiloZinc800, CircleShape)
+                            .size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = "View Tutorial",
+                            tint = MiloWhite,
+                            modifier = Modifier.size(18.dp)
+                        )
                     }
                 }
             }
